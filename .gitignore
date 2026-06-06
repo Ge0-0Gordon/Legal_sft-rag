@@ -2,6 +2,7 @@
 .env
 .env.*
 !.env.example
+**/.claude/settings.local.json
 
 # Python
 __pycache__/
@@ -31,6 +32,8 @@ yarn-error.log*
 pnpm-debug.log*
 
 # RAG runtime data
+chroma_db/
+backend/chroma_db/
 git-rag/legal_rag/backend/data/
 git-rag/legal_rag/backend/chroma_db/
 git-rag/legal_rag/backend/reports/
@@ -38,10 +41,14 @@ git-rag/legal_rag/backend/chat_records/
 
 # Downloaded datasets and processed local data
 DISC-Law-SFT/
+LegalSFT/DISC-Law-SFT/
 lf_data/
+LegalSFT/lf_data/
 
 # Training outputs, checkpoints, and model artifacts
+models/
 saves/
+LegalSFT/saves/
 outputs/
 checkpoints/
 *.safetensors
@@ -55,6 +62,7 @@ training_loss.png
 
 # Third-party source checkout kept locally
 LLaMA-Factory/
+LegalSFT/LLaMA-Factory/
 
 # Personal documents and local handoff files
 *.pdf

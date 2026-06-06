@@ -10,26 +10,27 @@ This repository is intended to keep the runnable application, configuration, and
 - FastAPI backend with pluggable RAG pipeline components.
 - React + Vite frontend for chat, knowledge-base management, and performance monitoring.
 - Legal-text processing with structured chunking, contextual headers, HyDE, reranking, knowledge-graph enhancement, and self-reflection.
-- Training and inference configuration examples for Qwen3 LoRA experiments under `configs/`.
+- Training and inference configuration examples for Qwen3 LoRA experiments under `LegalSFT/configs/`.
 
 ## Project Structure
 
 ```text
 .
-|-- configs/                  # Local training and inference YAML configs
 |-- git-rag/legal_rag/         # Main Legal RAG application
 |   |-- backend/               # FastAPI backend
 |   `-- frontend/              # React + Vite frontend
-|-- prepare_disc_law.ipynb     # Dataset preparation notebook
+|-- LegalSFT/                  # SFT configs, notebooks, and local training assets
+|   |-- configs/               # Training and inference YAML configs
+|   `-- prepare_disc_law.ipynb # Dataset preparation notebook
 |-- .gitignore                 # GitHub upload safety rules
 `-- README.md                  # Repository overview
 ```
 
 The following local-only paths are intentionally ignored by Git:
 
-- `DISC-Law-SFT/`, `lf_data/`: downloaded and processed datasets.
-- `saves/`, `outputs/`, `checkpoints/`: training outputs and model artifacts.
-- `LLaMA-Factory/`: local third-party checkout.
+- `LegalSFT/DISC-Law-SFT/`, `LegalSFT/lf_data/`: downloaded and processed datasets.
+- `LegalSFT/saves/`, `outputs/`, `checkpoints/`, `models/`: training outputs and model artifacts.
+- `LegalSFT/LLaMA-Factory/`: local third-party checkout.
 - `git-rag/legal_rag/backend/data/` and `git-rag/legal_rag/backend/chroma_db/`: runtime data and vector-store state.
 - Personal documents such as PDFs, Word files, and PowerPoint files.
 
