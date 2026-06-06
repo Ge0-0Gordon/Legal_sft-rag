@@ -1,0 +1,505 @@
+{
+  "name": "Legal-RAG",
+  "description": "基于 LangChain 与本地大模型的轻量化法律 RAG 系统，面向中国法律领域、可在消费级 GPU 上运行。以 LangChain 为编排框架，结合本地 Qwen3:8B 生成、BGE-M3 embedding 与 ChromaDB 向量库，实现文档加载、智能分块、向量化、语义检索与生成的完整 RAG 流程，并提供 FastAPI 后端与 React/Vite 前端。",
+  "languages": [
+    "css",
+    "html",
+    "javascript",
+    "json",
+    "markdown",
+    "python",
+    "txt",
+    "unknown"
+  ],
+  "frameworks": [
+    "LangChain",
+    "FastAPI",
+    "Uvicorn",
+    "Pydantic",
+    "ChromaDB",
+    "BM25 (rank-bm25)",
+    "jieba",
+    "React",
+    "Vite",
+    "axios",
+    "recharts",
+    "react-markdown",
+    "Ollama (Qwen3:8B / BGE-M3)"
+  ],
+  "files": [
+    {
+      "path": "backend/app/__init__.py",
+      "language": "python",
+      "sizeLines": 0,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backend/app/api/__init__.py",
+      "language": "python",
+      "sizeLines": 0,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backend/app/api/chat.py",
+      "language": "python",
+      "sizeLines": 90,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backend/app/api/knowledge.py",
+      "language": "python",
+      "sizeLines": 63,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backend/app/api/performance.py",
+      "language": "python",
+      "sizeLines": 67,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backend/app/config.py",
+      "language": "python",
+      "sizeLines": 54,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backend/app/core/__init__.py",
+      "language": "python",
+      "sizeLines": 0,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backend/app/core/embeddings.py",
+      "language": "python",
+      "sizeLines": 16,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backend/app/core/llm.py",
+      "language": "python",
+      "sizeLines": 31,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backend/app/core/retriever.py",
+      "language": "python",
+      "sizeLines": 165,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backend/app/core/vectorstore.py",
+      "language": "python",
+      "sizeLines": 27,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backend/app/main.py",
+      "language": "python",
+      "sizeLines": 78,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backend/app/models/__init__.py",
+      "language": "python",
+      "sizeLines": 0,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backend/app/models/schemas.py",
+      "language": "python",
+      "sizeLines": 184,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backend/app/services/__init__.py",
+      "language": "python",
+      "sizeLines": 0,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backend/app/services/hyde.py",
+      "language": "python",
+      "sizeLines": 27,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backend/app/services/kb_service.py",
+      "language": "python",
+      "sizeLines": 230,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backend/app/services/kg_service.py",
+      "language": "python",
+      "sizeLines": 155,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backend/app/services/perf_service.py",
+      "language": "python",
+      "sizeLines": 138,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backend/app/services/pipeline.py",
+      "language": "python",
+      "sizeLines": 345,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backend/app/services/prompts.py",
+      "language": "python",
+      "sizeLines": 146,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backend/app/services/quality_service.py",
+      "language": "python",
+      "sizeLines": 236,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backend/app/services/query_rewriter.py",
+      "language": "python",
+      "sizeLines": 98,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backend/app/services/rag_service.py",
+      "language": "python",
+      "sizeLines": 53,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backend/app/services/report_service.py",
+      "language": "python",
+      "sizeLines": 161,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backend/app/services/reranker.py",
+      "language": "python",
+      "sizeLines": 123,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backend/app/services/self_reflect.py",
+      "language": "python",
+      "sizeLines": 53,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backend/app/utils/__init__.py",
+      "language": "python",
+      "sizeLines": 0,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backend/app/utils/legal_chunker.py",
+      "language": "python",
+      "sizeLines": 263,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backend/app/utils/metadata.py",
+      "language": "python",
+      "sizeLines": 33,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backend/requirements.txt",
+      "language": "txt",
+      "sizeLines": 16,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "backend/scripts/__init__.py",
+      "language": "python",
+      "sizeLines": 0,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backend/scripts/crawl_laws.py",
+      "language": "python",
+      "sizeLines": 224,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backend/scripts/import_data.py",
+      "language": "python",
+      "sizeLines": 211,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backend/scripts/prepare_datasets.py",
+      "language": "python",
+      "sizeLines": 421,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backend/scripts/run_integration_test.py",
+      "language": "python",
+      "sizeLines": 188,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backend/scripts/run_quality_eval.py",
+      "language": "python",
+      "sizeLines": 113,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backend/tests/test_advanced_retrieval.py",
+      "language": "python",
+      "sizeLines": 74,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backend/tests/test_basic.py",
+      "language": "python",
+      "sizeLines": 77,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backend/tests/test_kg.py",
+      "language": "python",
+      "sizeLines": 67,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backend/tests/test_pipeline.py",
+      "language": "python",
+      "sizeLines": 109,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backend/tests/test_queries.txt",
+      "language": "txt",
+      "sizeLines": 89,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "frontend/index.html",
+      "language": "html",
+      "sizeLines": 12,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "frontend/package.json",
+      "language": "json",
+      "sizeLines": 25,
+      "fileCategory": "config"
+    },
+    {
+      "path": "frontend/src/App.jsx",
+      "language": "javascript",
+      "sizeLines": 56,
+      "fileCategory": "code"
+    },
+    {
+      "path": "frontend/src/main.jsx",
+      "language": "javascript",
+      "sizeLines": 10,
+      "fileCategory": "code"
+    },
+    {
+      "path": "frontend/src/pages/ChatPage.jsx",
+      "language": "javascript",
+      "sizeLines": 489,
+      "fileCategory": "code"
+    },
+    {
+      "path": "frontend/src/pages/KnowledgePage.jsx",
+      "language": "javascript",
+      "sizeLines": 144,
+      "fileCategory": "code"
+    },
+    {
+      "path": "frontend/src/pages/PerformancePage.jsx",
+      "language": "javascript",
+      "sizeLines": 272,
+      "fileCategory": "code"
+    },
+    {
+      "path": "frontend/src/services/api.js",
+      "language": "javascript",
+      "sizeLines": 115,
+      "fileCategory": "code"
+    },
+    {
+      "path": "frontend/src/styles/global.css",
+      "language": "css",
+      "sizeLines": 681,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "frontend/vite.config.js",
+      "language": "javascript",
+      "sizeLines": 15,
+      "fileCategory": "code"
+    },
+    {
+      "path": "README.md",
+      "language": "markdown",
+      "sizeLines": 751,
+      "fileCategory": "docs"
+    }
+  ],
+  "totalFiles": 53,
+  "filteredByIgnore": 0,
+  "estimatedComplexity": "moderate",
+  "importMap": {
+    "backend/app/__init__.py": [],
+    "backend/app/api/__init__.py": [],
+    "backend/app/api/chat.py": [
+      "backend/app/models/schemas.py",
+      "backend/app/services/perf_service.py",
+      "backend/app/services/rag_service.py",
+      "backend/app/services/report_service.py"
+    ],
+    "backend/app/api/knowledge.py": [
+      "backend/app/models/schemas.py",
+      "backend/app/services/kb_service.py"
+    ],
+    "backend/app/api/performance.py": [
+      "backend/app/models/schemas.py",
+      "backend/app/services/perf_service.py",
+      "backend/app/services/report_service.py"
+    ],
+    "backend/app/config.py": [],
+    "backend/app/core/__init__.py": [],
+    "backend/app/core/embeddings.py": [
+      "backend/app/config.py"
+    ],
+    "backend/app/core/llm.py": [
+      "backend/app/config.py"
+    ],
+    "backend/app/core/retriever.py": [
+      "backend/app/config.py",
+      "backend/app/core/vectorstore.py"
+    ],
+    "backend/app/core/vectorstore.py": [
+      "backend/app/config.py",
+      "backend/app/core/embeddings.py"
+    ],
+    "backend/app/main.py": [
+      "backend/app/api/__init__.py",
+      "backend/app/api/chat.py",
+      "backend/app/api/knowledge.py",
+      "backend/app/api/performance.py",
+      "backend/app/config.py"
+    ],
+    "backend/app/models/__init__.py": [],
+    "backend/app/models/schemas.py": [],
+    "backend/app/services/__init__.py": [],
+    "backend/app/services/hyde.py": [
+      "backend/app/config.py",
+      "backend/app/core/llm.py",
+      "backend/app/services/prompts.py"
+    ],
+    "backend/app/services/kb_service.py": [
+      "backend/app/config.py",
+      "backend/app/core/embeddings.py",
+      "backend/app/core/vectorstore.py",
+      "backend/app/models/schemas.py",
+      "backend/app/utils/legal_chunker.py"
+    ],
+    "backend/app/services/kg_service.py": [
+      "backend/app/config.py",
+      "backend/app/core/llm.py",
+      "backend/app/services/prompts.py"
+    ],
+    "backend/app/services/perf_service.py": [
+      "backend/app/config.py",
+      "backend/app/core/embeddings.py",
+      "backend/app/core/llm.py",
+      "backend/app/models/schemas.py",
+      "backend/app/services/rag_service.py"
+    ],
+    "backend/app/services/pipeline.py": [
+      "backend/app/config.py",
+      "backend/app/core/llm.py",
+      "backend/app/core/retriever.py",
+      "backend/app/models/schemas.py",
+      "backend/app/services/prompts.py",
+      "backend/app/services/query_rewriter.py",
+      "backend/app/services/reranker.py",
+      "backend/app/utils/metadata.py"
+    ],
+    "backend/app/services/prompts.py": [],
+    "backend/app/services/quality_service.py": [
+      "backend/app/config.py",
+      "backend/app/core/llm.py",
+      "backend/app/models/schemas.py"
+    ],
+    "backend/app/services/query_rewriter.py": [
+      "backend/app/core/llm.py",
+      "backend/app/services/prompts.py"
+    ],
+    "backend/app/services/rag_service.py": [
+      "backend/app/models/schemas.py",
+      "backend/app/services/pipeline.py"
+    ],
+    "backend/app/services/report_service.py": [
+      "backend/app/config.py",
+      "backend/app/models/schemas.py"
+    ],
+    "backend/app/services/reranker.py": [
+      "backend/app/core/llm.py"
+    ],
+    "backend/app/services/self_reflect.py": [
+      "backend/app/core/llm.py",
+      "backend/app/services/prompts.py"
+    ],
+    "backend/app/utils/__init__.py": [],
+    "backend/app/utils/legal_chunker.py": [],
+    "backend/app/utils/metadata.py": [],
+    "backend/requirements.txt": [],
+    "backend/scripts/__init__.py": [],
+    "backend/scripts/crawl_laws.py": [],
+    "backend/scripts/import_data.py": [
+      "backend/app/config.py",
+      "backend/app/core/vectorstore.py",
+      "backend/app/utils/legal_chunker.py"
+    ],
+    "backend/scripts/prepare_datasets.py": [],
+    "backend/scripts/run_integration_test.py": [
+      "backend/app/services/pipeline.py"
+    ],
+    "backend/scripts/run_quality_eval.py": [
+      "backend/app/models/schemas.py",
+      "backend/app/services/pipeline.py",
+      "backend/app/services/quality_service.py"
+    ],
+    "backend/tests/test_advanced_retrieval.py": [],
+    "backend/tests/test_basic.py": [],
+    "backend/tests/test_kg.py": [],
+    "backend/tests/test_pipeline.py": [],
+    "backend/tests/test_queries.txt": [],
+    "frontend/index.html": [],
+    "frontend/package.json": [],
+    "frontend/src/App.jsx": [
+      "frontend/src/pages/ChatPage.jsx",
+      "frontend/src/pages/KnowledgePage.jsx",
+      "frontend/src/pages/PerformancePage.jsx"
+    ],
+    "frontend/src/main.jsx": [
+      "frontend/src/App.jsx",
+      "frontend/src/styles/global.css"
+    ],
+    "frontend/src/pages/ChatPage.jsx": [
+      "frontend/src/services/api.js"
+    ],
+    "frontend/src/pages/KnowledgePage.jsx": [
+      "frontend/src/services/api.js"
+    ],
+    "frontend/src/pages/PerformancePage.jsx": [
+      "frontend/src/services/api.js"
+    ],
+    "frontend/src/services/api.js": [],
+    "frontend/src/styles/global.css": [],
+    "frontend/vite.config.js": [],
+    "README.md": []
+  }
+}

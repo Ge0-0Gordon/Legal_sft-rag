@@ -1,0 +1,3292 @@
+{
+  "version": "1.0.0",
+  "gitCommitHash": "7f99c8532aff512dd71ba89c756098baa4ea7389",
+  "generatedAt": "2026-06-05T00:13:18.511Z",
+  "files": {
+    "backend/app/__init__.py": {
+      "filePath": "backend/app/__init__.py",
+      "contentHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 1,
+      "hasStructuralAnalysis": true
+    },
+    "backend/app/api/__init__.py": {
+      "filePath": "backend/app/api/__init__.py",
+      "contentHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 1,
+      "hasStructuralAnalysis": true
+    },
+    "backend/app/api/chat.py": {
+      "filePath": "backend/app/api/chat.py",
+      "contentHash": "b0eb1b61ce7dad17eff49bcb8bad20977af929e9236f137f7c6f14916ed1e757",
+      "functions": [
+        {
+          "name": "chat",
+          "params": [
+            "req"
+          ],
+          "exported": true,
+          "lineCount": 43
+        },
+        {
+          "name": "save_record",
+          "params": [
+            "record"
+          ],
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "get_records",
+          "params": [],
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "download_record",
+          "params": [
+            "record_id"
+          ],
+          "exported": true,
+          "lineCount": 10
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "fastapi",
+          "specifiers": [
+            "APIRouter",
+            "HTTPException"
+          ]
+        },
+        {
+          "source": "fastapi.responses",
+          "specifiers": [
+            "FileResponse"
+          ]
+        },
+        {
+          "source": "app.models.schemas",
+          "specifiers": [
+            "ChatRequest",
+            "ChatResponse",
+            "APIResponse"
+          ]
+        },
+        {
+          "source": "app.services.rag_service",
+          "specifiers": [
+            "rag_query"
+          ]
+        },
+        {
+          "source": "app.services.perf_service",
+          "specifiers": [
+            "get_system_info"
+          ]
+        },
+        {
+          "source": "app.services.report_service",
+          "specifiers": [
+            "save_chat_record",
+            "list_chat_records",
+            "get_chat_record_filepath"
+          ]
+        }
+      ],
+      "exports": [
+        "chat",
+        "save_record",
+        "get_records",
+        "download_record"
+      ],
+      "totalLines": 91,
+      "hasStructuralAnalysis": true
+    },
+    "backend/app/api/knowledge.py": {
+      "filePath": "backend/app/api/knowledge.py",
+      "contentHash": "13d082acbafab8233d093ba941acb81bacaf1a0f041592deed49bd6d88361f77",
+      "functions": [
+        {
+          "name": "upload",
+          "params": [
+            "file",
+            "doc_type"
+          ],
+          "exported": true,
+          "lineCount": 17
+        },
+        {
+          "name": "list_files",
+          "params": [],
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "delete_file",
+          "params": [
+            "filename"
+          ],
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "rebuild",
+          "params": [],
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "stats",
+          "params": [],
+          "exported": true,
+          "lineCount": 4
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "fastapi",
+          "specifiers": [
+            "APIRouter",
+            "UploadFile",
+            "File",
+            "Form",
+            "HTTPException"
+          ]
+        },
+        {
+          "source": "app.models.schemas",
+          "specifiers": [
+            "APIResponse"
+          ]
+        },
+        {
+          "source": "app.services.kb_service",
+          "specifiers": [
+            "upload_document",
+            "list_documents",
+            "delete_document",
+            "rebuild_index",
+            "get_kb_stats"
+          ]
+        }
+      ],
+      "exports": [
+        "upload",
+        "list_files",
+        "delete_file",
+        "rebuild",
+        "stats"
+      ],
+      "totalLines": 64,
+      "hasStructuralAnalysis": true
+    },
+    "backend/app/api/performance.py": {
+      "filePath": "backend/app/api/performance.py",
+      "contentHash": "8f72a4a55fbd9f042950e885307cb60b22280a86a85f7794d3a6eb5fe5c04184",
+      "functions": [
+        {
+          "name": "system_info",
+          "params": [],
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "benchmark",
+          "params": [
+            "queries",
+            "use_rerank",
+            "evaluate_quality"
+          ],
+          "exported": true,
+          "lineCount": 12
+        },
+        {
+          "name": "create_report",
+          "params": [
+            "queries",
+            "use_rerank",
+            "evaluate_quality"
+          ],
+          "exported": true,
+          "lineCount": 13
+        },
+        {
+          "name": "get_reports",
+          "params": [],
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "download_report",
+          "params": [
+            "report_id"
+          ],
+          "exported": true,
+          "lineCount": 10
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "fastapi",
+          "specifiers": [
+            "APIRouter",
+            "HTTPException"
+          ]
+        },
+        {
+          "source": "fastapi.responses",
+          "specifiers": [
+            "FileResponse"
+          ]
+        },
+        {
+          "source": "app.models.schemas",
+          "specifiers": [
+            "APIResponse"
+          ]
+        },
+        {
+          "source": "app.services.perf_service",
+          "specifiers": [
+            "get_system_info",
+            "run_benchmark"
+          ]
+        },
+        {
+          "source": "app.services.report_service",
+          "specifiers": [
+            "generate_report",
+            "list_reports",
+            "get_report_filepath"
+          ]
+        }
+      ],
+      "exports": [
+        "system_info",
+        "benchmark",
+        "create_report",
+        "get_reports",
+        "download_report"
+      ],
+      "totalLines": 68,
+      "hasStructuralAnalysis": true
+    },
+    "backend/app/config.py": {
+      "filePath": "backend/app/config.py",
+      "contentHash": "e4dadac1603128cc7409a52d065e449f959db4432e258096978fa6db7cb3d5e1",
+      "functions": [],
+      "classes": [
+        {
+          "name": "Settings",
+          "methods": [],
+          "properties": [
+            "APP_NAME",
+            "APP_VERSION",
+            "API_PREFIX",
+            "CORS_ORIGINS",
+            "OLLAMA_BASE_URL",
+            "LLM_MODEL",
+            "LLM_TEMPERATURE",
+            "LLM_NUM_CTX",
+            "LLM_TIMEOUT",
+            "EMBEDDING_MODEL",
+            "CHROMA_PERSIST_DIR",
+            "LAWS_COLLECTION",
+            "CASES_COLLECTION",
+            "RETRIEVAL_TOP_K",
+            "BM25_WEIGHT",
+            "VECTOR_WEIGHT",
+            "RERANK_TOP_K",
+            "DATA_DIR",
+            "LAWS_DIR",
+            "CASES_DIR",
+            "REPORTS_DIR",
+            "CHAT_RECORDS_DIR",
+            "CONTEXTUAL_CHUNKING",
+            "KG_DATA_PATH",
+            "HYDE_TEMPERATURE",
+            "SELF_REFLECT_MAX_ITER",
+            "DEFAULT_QUERY_TRANSFORM",
+            "DEFAULT_RERANK",
+            "DEFAULT_GENERATION"
+          ],
+          "exported": true,
+          "lineCount": 45
+        }
+      ],
+      "imports": [
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "Path"
+          ]
+        },
+        {
+          "source": "pydantic_settings",
+          "specifiers": [
+            "BaseSettings"
+          ]
+        }
+      ],
+      "exports": [
+        "Settings"
+      ],
+      "totalLines": 55,
+      "hasStructuralAnalysis": true
+    },
+    "backend/app/core/__init__.py": {
+      "filePath": "backend/app/core/__init__.py",
+      "contentHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 1,
+      "hasStructuralAnalysis": true
+    },
+    "backend/app/core/embeddings.py": {
+      "filePath": "backend/app/core/embeddings.py",
+      "contentHash": "6d9776a17d57caa87e7b1404a4e05fb99d0ab568fb343fa7173be2faf87c63f5",
+      "functions": [
+        {
+          "name": "get_embeddings",
+          "params": [
+            "model"
+          ],
+          "returnType": "OllamaEmbeddings",
+          "exported": true,
+          "lineCount": 8
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "langchain_ollama",
+          "specifiers": [
+            "OllamaEmbeddings"
+          ]
+        },
+        {
+          "source": "app.config",
+          "specifiers": [
+            "settings"
+          ]
+        }
+      ],
+      "exports": [
+        "get_embeddings"
+      ],
+      "totalLines": 17,
+      "hasStructuralAnalysis": true
+    },
+    "backend/app/core/llm.py": {
+      "filePath": "backend/app/core/llm.py",
+      "contentHash": "50a2a0a3e2eba3cd3c8fe7b9e96ace83ff1fe5d30e3b5033742f8334b17a60d6",
+      "functions": [
+        {
+          "name": "get_llm",
+          "params": [
+            "model",
+            "temperature"
+          ],
+          "returnType": "ChatOllama",
+          "exported": true,
+          "lineCount": 16
+        },
+        {
+          "name": "clear_llm_cache",
+          "params": [],
+          "exported": true,
+          "lineCount": 3
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "langchain_ollama",
+          "specifiers": [
+            "ChatOllama"
+          ]
+        },
+        {
+          "source": "app.config",
+          "specifiers": [
+            "settings"
+          ]
+        }
+      ],
+      "exports": [
+        "get_llm",
+        "clear_llm_cache"
+      ],
+      "totalLines": 32,
+      "hasStructuralAnalysis": true
+    },
+    "backend/app/core/retriever.py": {
+      "filePath": "backend/app/core/retriever.py",
+      "contentHash": "aa6f6b1a045bc10b8a6674d9d5180dc147c79babc931b30eab07271d70766a0b",
+      "functions": [
+        {
+          "name": "get_hybrid_retriever",
+          "params": [
+            "collection_names"
+          ],
+          "returnType": "HybridRetriever",
+          "exported": true,
+          "lineCount": 6
+        }
+      ],
+      "classes": [
+        {
+          "name": "BM25ChineseRetriever",
+          "methods": [
+            "__init__",
+            "_get_relevant_documents"
+          ],
+          "properties": [
+            "documents",
+            "tokenized_corpus",
+            "bm25",
+            "k"
+          ],
+          "exported": true,
+          "lineCount": 34
+        },
+        {
+          "name": "HybridRetriever",
+          "methods": [
+            "__init__",
+            "_load_bm25_corpus",
+            "_get_relevant_documents",
+            "search_with_split_queries"
+          ],
+          "properties": [
+            "bm25_retriever",
+            "collection_names",
+            "bm25_weight",
+            "vector_weight",
+            "k",
+            "all_documents"
+          ],
+          "exported": true,
+          "lineCount": 110
+        }
+      ],
+      "imports": [
+        {
+          "source": "jieba",
+          "specifiers": [
+            "jieba"
+          ]
+        },
+        {
+          "source": "langchain_core.documents",
+          "specifiers": [
+            "Document"
+          ]
+        },
+        {
+          "source": "langchain_core.retrievers",
+          "specifiers": [
+            "BaseRetriever"
+          ]
+        },
+        {
+          "source": "langchain_core.callbacks",
+          "specifiers": [
+            "CallbackManagerForRetrieverRun"
+          ]
+        },
+        {
+          "source": "rank_bm25",
+          "specifiers": [
+            "BM25Okapi"
+          ]
+        },
+        {
+          "source": "app.core.vectorstore",
+          "specifiers": [
+            "get_vectorstore"
+          ]
+        },
+        {
+          "source": "app.config",
+          "specifiers": [
+            "settings"
+          ]
+        }
+      ],
+      "exports": [
+        "BM25ChineseRetriever",
+        "HybridRetriever",
+        "get_hybrid_retriever"
+      ],
+      "totalLines": 166,
+      "hasStructuralAnalysis": true
+    },
+    "backend/app/core/vectorstore.py": {
+      "filePath": "backend/app/core/vectorstore.py",
+      "contentHash": "d793a807cb18702bd39371f25bc7158c665dc35a7aa76f89e27a1343a51d3bf7",
+      "functions": [
+        {
+          "name": "get_vectorstore",
+          "params": [
+            "collection_name"
+          ],
+          "returnType": "Chroma",
+          "exported": true,
+          "lineCount": 12
+        },
+        {
+          "name": "reset_store_cache",
+          "params": [],
+          "exported": true,
+          "lineCount": 3
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "langchain_community.vectorstores",
+          "specifiers": [
+            "Chroma"
+          ]
+        },
+        {
+          "source": "app.core.embeddings",
+          "specifiers": [
+            "get_embeddings"
+          ]
+        },
+        {
+          "source": "app.config",
+          "specifiers": [
+            "settings"
+          ]
+        }
+      ],
+      "exports": [
+        "get_vectorstore",
+        "reset_store_cache"
+      ],
+      "totalLines": 28,
+      "hasStructuralAnalysis": true
+    },
+    "backend/app/main.py": {
+      "filePath": "backend/app/main.py",
+      "contentHash": "2621c3b398732cb869cf672c1fd96faced485b2b50a0e90a0661364e4ebcdbe4",
+      "functions": [
+        {
+          "name": "warmup_local_models",
+          "params": [],
+          "exported": true,
+          "lineCount": 19
+        },
+        {
+          "name": "root",
+          "params": [],
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "health_check",
+          "params": [],
+          "exported": true,
+          "lineCount": 15
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "fastapi",
+          "specifiers": [
+            "FastAPI"
+          ]
+        },
+        {
+          "source": "fastapi.middleware.cors",
+          "specifiers": [
+            "CORSMiddleware"
+          ]
+        },
+        {
+          "source": "app.config",
+          "specifiers": [
+            "settings"
+          ]
+        },
+        {
+          "source": "app.api",
+          "specifiers": [
+            "chat",
+            "knowledge",
+            "performance"
+          ]
+        }
+      ],
+      "exports": [
+        "warmup_local_models",
+        "root",
+        "health_check"
+      ],
+      "totalLines": 79,
+      "hasStructuralAnalysis": true
+    },
+    "backend/app/models/__init__.py": {
+      "filePath": "backend/app/models/__init__.py",
+      "contentHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 1,
+      "hasStructuralAnalysis": true
+    },
+    "backend/app/models/schemas.py": {
+      "filePath": "backend/app/models/schemas.py",
+      "contentHash": "d2bf5f9654e04e89dbad670f8c83d7f72780f11edf2eefb2a68b305c512fafe1",
+      "functions": [],
+      "classes": [
+        {
+          "name": "APIResponse",
+          "methods": [],
+          "properties": [
+            "code",
+            "data",
+            "message"
+          ],
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "SystemInfo",
+          "methods": [],
+          "properties": [
+            "cpu_percent",
+            "memory_percent",
+            "memory_used_gb",
+            "memory_total_gb"
+          ],
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "RougeScores",
+          "methods": [],
+          "properties": [
+            "rouge_1",
+            "rouge_2",
+            "rouge_l"
+          ],
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "RetrievalRelevanceScore",
+          "methods": [],
+          "properties": [
+            "avg_relevance",
+            "relevant_doc_count",
+            "relevance_ratio"
+          ],
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "FaithfulnessScore",
+          "methods": [],
+          "properties": [
+            "score",
+            "explanation"
+          ],
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "QualityMetrics",
+          "methods": [],
+          "properties": [
+            "query",
+            "rouge",
+            "retrieval_relevance",
+            "faithfulness"
+          ],
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "QualityAggregated",
+          "methods": [],
+          "properties": [
+            "avg_rouge_1",
+            "avg_rouge_2",
+            "avg_rouge_l",
+            "avg_retrieval_relevance",
+            "avg_faithfulness",
+            "evaluated_count"
+          ],
+          "exported": true,
+          "lineCount": 8
+        },
+        {
+          "name": "ChatRequest",
+          "methods": [],
+          "properties": [
+            "question",
+            "use_rerank",
+            "use_query_rewrite",
+            "top_k",
+            "collection",
+            "evaluate_quality",
+            "monitor_system",
+            "query_transform",
+            "rerank_strategy",
+            "generation_strategy",
+            "use_kg"
+          ],
+          "exported": true,
+          "lineCount": 13
+        },
+        {
+          "name": "SourceDocument",
+          "methods": [],
+          "properties": [
+            "content",
+            "metadata",
+            "score"
+          ],
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "StageMetrics",
+          "methods": [],
+          "properties": [
+            "query_rewrite_ms",
+            "retrieval_ms",
+            "rerank_ms",
+            "generation_ms",
+            "total_ms",
+            "kg_lookup_ms",
+            "self_reflect_ms",
+            "was_corrected",
+            "llm_calls",
+            "llm_calls_saved"
+          ],
+          "exported": true,
+          "lineCount": 12
+        },
+        {
+          "name": "ChatResponse",
+          "methods": [],
+          "properties": [
+            "answer",
+            "sources",
+            "metrics",
+            "rewritten_queries",
+            "system_before",
+            "system_after",
+            "quality",
+            "kg_entities",
+            "generation_strategy",
+            "pipeline_config"
+          ],
+          "exported": true,
+          "lineCount": 12
+        },
+        {
+          "name": "KnowledgeFileInfo",
+          "methods": [],
+          "properties": [
+            "filename",
+            "doc_type",
+            "size_bytes",
+            "chunk_count"
+          ],
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "KnowledgeStats",
+          "methods": [],
+          "properties": [
+            "total_files",
+            "total_chunks",
+            "laws_chunks",
+            "cases_chunks",
+            "collections"
+          ],
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "BenchmarkResult",
+          "methods": [],
+          "properties": [
+            "system_info",
+            "total_queries",
+            "avg_latency_ms",
+            "avg_retrieval_ms",
+            "avg_generation_ms",
+            "queries_per_second",
+            "details"
+          ],
+          "exported": true,
+          "lineCount": 8
+        },
+        {
+          "name": "BenchmarkResultV2",
+          "methods": [],
+          "properties": [
+            "system_info",
+            "total_queries",
+            "avg_latency_ms",
+            "avg_retrieval_ms",
+            "avg_generation_ms",
+            "queries_per_second",
+            "details",
+            "quality",
+            "quality_details"
+          ],
+          "exported": true,
+          "lineCount": 11
+        },
+        {
+          "name": "ReportMeta",
+          "methods": [],
+          "properties": [
+            "report_id",
+            "created_at",
+            "total_queries",
+            "avg_latency_ms",
+            "queries_per_second",
+            "has_quality"
+          ],
+          "exported": true,
+          "lineCount": 8
+        },
+        {
+          "name": "ReportFull",
+          "methods": [],
+          "properties": [
+            "report_id",
+            "created_at",
+            "system_snapshot",
+            "benchmark",
+            "knowledge_base",
+            "lightweight_highlights"
+          ],
+          "exported": true,
+          "lineCount": 8
+        },
+        {
+          "name": "ChatRecordMeta",
+          "methods": [],
+          "properties": [
+            "record_id",
+            "created_at",
+            "question",
+            "total_ms",
+            "has_quality"
+          ],
+          "exported": true,
+          "lineCount": 7
+        }
+      ],
+      "imports": [
+        {
+          "source": "datetime",
+          "specifiers": [
+            "datetime"
+          ]
+        },
+        {
+          "source": "pydantic",
+          "specifiers": [
+            "BaseModel",
+            "Field"
+          ]
+        }
+      ],
+      "exports": [
+        "APIResponse",
+        "SystemInfo",
+        "RougeScores",
+        "RetrievalRelevanceScore",
+        "FaithfulnessScore",
+        "QualityMetrics",
+        "QualityAggregated",
+        "ChatRequest",
+        "SourceDocument",
+        "StageMetrics",
+        "ChatResponse",
+        "KnowledgeFileInfo",
+        "KnowledgeStats",
+        "BenchmarkResult",
+        "BenchmarkResultV2",
+        "ReportMeta",
+        "ReportFull",
+        "ChatRecordMeta"
+      ],
+      "totalLines": 185,
+      "hasStructuralAnalysis": true
+    },
+    "backend/app/services/__init__.py": {
+      "filePath": "backend/app/services/__init__.py",
+      "contentHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 1,
+      "hasStructuralAnalysis": true
+    },
+    "backend/app/services/hyde.py": {
+      "filePath": "backend/app/services/hyde.py",
+      "contentHash": "ab21934134d008c31d9b0f15e1f540bb1b8686ab5b5994592a747a533e0ba355",
+      "functions": [
+        {
+          "name": "hyde_transform",
+          "params": [
+            "question"
+          ],
+          "returnType": "tuple[str, str | None]",
+          "exported": true,
+          "lineCount": 17
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "app.core.llm",
+          "specifiers": [
+            "get_llm"
+          ]
+        },
+        {
+          "source": "app.services.prompts",
+          "specifiers": [
+            "HYDE_PROMPT"
+          ]
+        },
+        {
+          "source": "app.config",
+          "specifiers": [
+            "settings"
+          ]
+        }
+      ],
+      "exports": [
+        "hyde_transform"
+      ],
+      "totalLines": 28,
+      "hasStructuralAnalysis": true
+    },
+    "backend/app/services/kb_service.py": {
+      "filePath": "backend/app/services/kb_service.py",
+      "contentHash": "4697976e99ed9e81ab90a8aafebc9fc75c1cc8a59db56d4a06f5ae5b8974b18f",
+      "functions": [
+        {
+          "name": "_read_text_file",
+          "params": [
+            "filepath"
+          ],
+          "returnType": "str",
+          "exported": true,
+          "lineCount": 10
+        },
+        {
+          "name": "_detect_doc_type",
+          "params": [
+            "filepath"
+          ],
+          "returnType": "str",
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "_collect_files",
+          "params": [
+            "dir_path",
+            "extensions"
+          ],
+          "returnType": "list[str]",
+          "exported": true,
+          "lineCount": 13
+        },
+        {
+          "name": "_count_files",
+          "params": [
+            "dir_path"
+          ],
+          "returnType": "int",
+          "exported": true,
+          "lineCount": 8
+        },
+        {
+          "name": "get_kb_stats",
+          "params": [],
+          "returnType": "KnowledgeStats",
+          "exported": true,
+          "lineCount": 18
+        },
+        {
+          "name": "upload_document",
+          "params": [
+            "filename",
+            "content",
+            "doc_type"
+          ],
+          "returnType": "KnowledgeFileInfo",
+          "exported": true,
+          "lineCount": 32
+        },
+        {
+          "name": "list_documents",
+          "params": [],
+          "returnType": "list[KnowledgeFileInfo]",
+          "exported": true,
+          "lineCount": 15
+        },
+        {
+          "name": "delete_document",
+          "params": [
+            "filename"
+          ],
+          "returnType": "bool",
+          "exported": true,
+          "lineCount": 8
+        },
+        {
+          "name": "rebuild_index",
+          "params": [],
+          "returnType": "KnowledgeStats",
+          "exported": true,
+          "lineCount": 79
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "os",
+          "specifiers": [
+            "os"
+          ]
+        },
+        {
+          "source": "json",
+          "specifiers": [
+            "json"
+          ]
+        },
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "Path"
+          ]
+        },
+        {
+          "source": "langchain_core.documents",
+          "specifiers": [
+            "Document"
+          ]
+        },
+        {
+          "source": "app.core.vectorstore",
+          "specifiers": [
+            "get_vectorstore",
+            "reset_store_cache"
+          ]
+        },
+        {
+          "source": "app.core.embeddings",
+          "specifiers": [
+            "get_embeddings"
+          ]
+        },
+        {
+          "source": "app.utils.legal_chunker",
+          "specifiers": [
+            "split_legal_document"
+          ]
+        },
+        {
+          "source": "app.models.schemas",
+          "specifiers": [
+            "KnowledgeFileInfo",
+            "KnowledgeStats"
+          ]
+        },
+        {
+          "source": "app.config",
+          "specifiers": [
+            "settings"
+          ]
+        }
+      ],
+      "exports": [
+        "_read_text_file",
+        "_detect_doc_type",
+        "_collect_files",
+        "_count_files",
+        "get_kb_stats",
+        "upload_document",
+        "list_documents",
+        "delete_document",
+        "rebuild_index"
+      ],
+      "totalLines": 231,
+      "hasStructuralAnalysis": true
+    },
+    "backend/app/services/kg_service.py": {
+      "filePath": "backend/app/services/kg_service.py",
+      "contentHash": "8ac0bb3cac5fcf4a79d9c6ccb128721d1eda33cc9d2fb35befd15b25b436c172",
+      "functions": [
+        {
+          "name": "_load_crime_kg",
+          "params": [],
+          "returnType": "dict[str, dict]",
+          "exported": true,
+          "lineCount": 53
+        },
+        {
+          "name": "extract_crime_entities",
+          "params": [
+            "question"
+          ],
+          "returnType": "list[str]",
+          "exported": true,
+          "lineCount": 41
+        },
+        {
+          "name": "kg_lookup",
+          "params": [
+            "crime_names"
+          ],
+          "returnType": "list[Document]",
+          "exported": true,
+          "lineCount": 35
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "re",
+          "specifiers": [
+            "re"
+          ]
+        },
+        {
+          "source": "functools",
+          "specifiers": [
+            "lru_cache"
+          ]
+        },
+        {
+          "source": "langchain_core.documents",
+          "specifiers": [
+            "Document"
+          ]
+        },
+        {
+          "source": "app.core.llm",
+          "specifiers": [
+            "get_llm"
+          ]
+        },
+        {
+          "source": "app.services.prompts",
+          "specifiers": [
+            "KG_ENTITY_EXTRACT_PROMPT"
+          ]
+        },
+        {
+          "source": "app.config",
+          "specifiers": [
+            "settings"
+          ]
+        }
+      ],
+      "exports": [
+        "_load_crime_kg",
+        "extract_crime_entities",
+        "kg_lookup"
+      ],
+      "totalLines": 156,
+      "hasStructuralAnalysis": true
+    },
+    "backend/app/services/perf_service.py": {
+      "filePath": "backend/app/services/perf_service.py",
+      "contentHash": "86d61f5927966bb76f748282502bc50a6294b77979c3c0713176ba163533f8f3",
+      "functions": [
+        {
+          "name": "get_system_info",
+          "params": [],
+          "returnType": "SystemInfo",
+          "exported": true,
+          "lineCount": 9
+        },
+        {
+          "name": "get_ollama_status",
+          "params": [],
+          "returnType": "dict",
+          "exported": true,
+          "lineCount": 25
+        },
+        {
+          "name": "run_benchmark",
+          "params": [
+            "queries",
+            "use_rerank",
+            "evaluate_quality"
+          ],
+          "returnType": "BenchmarkResultV2",
+          "exported": true,
+          "lineCount": 71
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "time",
+          "specifiers": [
+            "time"
+          ]
+        },
+        {
+          "source": "psutil",
+          "specifiers": [
+            "psutil"
+          ]
+        },
+        {
+          "source": "httpx",
+          "specifiers": [
+            "httpx"
+          ]
+        },
+        {
+          "source": "app.core.llm",
+          "specifiers": [
+            "get_llm"
+          ]
+        },
+        {
+          "source": "app.core.embeddings",
+          "specifiers": [
+            "get_embeddings"
+          ]
+        },
+        {
+          "source": "app.services.rag_service",
+          "specifiers": [
+            "rag_query"
+          ]
+        },
+        {
+          "source": "app.config",
+          "specifiers": [
+            "settings"
+          ]
+        },
+        {
+          "source": "app.models.schemas",
+          "specifiers": [
+            "SystemInfo",
+            "BenchmarkResult",
+            "BenchmarkResultV2",
+            "SourceDocument"
+          ]
+        }
+      ],
+      "exports": [
+        "get_system_info",
+        "get_ollama_status",
+        "run_benchmark"
+      ],
+      "totalLines": 139,
+      "hasStructuralAnalysis": true
+    },
+    "backend/app/services/pipeline.py": {
+      "filePath": "backend/app/services/pipeline.py",
+      "contentHash": "1952506f2bf4e14c5fdad834c57daef4d194c0cdb32c98cd3ad94eb6db7934f3",
+      "functions": [
+        {
+          "name": "resolve_collections",
+          "params": [
+            "collection"
+          ],
+          "returnType": "list[str]",
+          "exported": true,
+          "lineCount": 8
+        },
+        {
+          "name": "build_context",
+          "params": [
+            "docs",
+            "max_length"
+          ],
+          "returnType": "str",
+          "exported": true,
+          "lineCount": 21
+        }
+      ],
+      "classes": [
+        {
+          "name": "QueryTransformStrategy",
+          "methods": [],
+          "properties": [],
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "RerankStrategy",
+          "methods": [],
+          "properties": [],
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "GenerationStrategy",
+          "methods": [],
+          "properties": [],
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "PipelineConfig",
+          "methods": [
+            "to_dict"
+          ],
+          "properties": [
+            "query_transform",
+            "rerank_strategy",
+            "generation_strategy",
+            "use_kg",
+            "top_k",
+            "collection_names"
+          ],
+          "exported": true,
+          "lineCount": 17
+        },
+        {
+          "name": "RAGPipeline",
+          "methods": [
+            "__init__",
+            "execute",
+            "_count_transform_calls",
+            "_query_transform",
+            "_retrieve",
+            "_kg_lookup",
+            "_rerank",
+            "_generate"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 241
+        }
+      ],
+      "imports": [
+        {
+          "source": "time",
+          "specifiers": [
+            "time"
+          ]
+        },
+        {
+          "source": "dataclasses",
+          "specifiers": [
+            "dataclass",
+            "field",
+            "asdict"
+          ]
+        },
+        {
+          "source": "enum",
+          "specifiers": [
+            "Enum"
+          ]
+        },
+        {
+          "source": "langchain_core.documents",
+          "specifiers": [
+            "Document"
+          ]
+        },
+        {
+          "source": "app.core.llm",
+          "specifiers": [
+            "get_llm"
+          ]
+        },
+        {
+          "source": "app.core.retriever",
+          "specifiers": [
+            "get_hybrid_retriever"
+          ]
+        },
+        {
+          "source": "app.services.reranker",
+          "specifiers": [
+            "simple_rerank",
+            "llm_rerank"
+          ]
+        },
+        {
+          "source": "app.services.query_rewriter",
+          "specifiers": [
+            "multi_query_rewrite"
+          ]
+        },
+        {
+          "source": "app.services.prompts",
+          "specifiers": [
+            "LEGAL_QA_PROMPT",
+            "LEGAL_COT_PROMPT",
+            "LEGAL_STRUCTURED_PROMPT"
+          ]
+        },
+        {
+          "source": "app.utils.metadata",
+          "specifiers": [
+            "format_source_display"
+          ]
+        },
+        {
+          "source": "app.models.schemas",
+          "specifiers": [
+            "ChatResponse",
+            "SourceDocument",
+            "StageMetrics"
+          ]
+        },
+        {
+          "source": "app.config",
+          "specifiers": [
+            "settings"
+          ]
+        }
+      ],
+      "exports": [
+        "QueryTransformStrategy",
+        "RerankStrategy",
+        "GenerationStrategy",
+        "PipelineConfig",
+        "RAGPipeline",
+        "resolve_collections",
+        "build_context"
+      ],
+      "totalLines": 346,
+      "hasStructuralAnalysis": true
+    },
+    "backend/app/services/prompts.py": {
+      "filePath": "backend/app/services/prompts.py",
+      "contentHash": "5b88c2a16eb864a75dab0677fc48e4fb0552d6df8b0a4a8ade4602ebc84bab5b",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "langchain_core.prompts",
+          "specifiers": [
+            "ChatPromptTemplate"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 147,
+      "hasStructuralAnalysis": true
+    },
+    "backend/app/services/quality_service.py": {
+      "filePath": "backend/app/services/quality_service.py",
+      "contentHash": "59ab0a4373590956c3b06b8819863c91f42c5be07ef25f3e57530d0f20ad125d",
+      "functions": [
+        {
+          "name": "_load_reference_answers",
+          "params": [],
+          "returnType": "dict[str, str]",
+          "exported": true,
+          "lineCount": 13
+        },
+        {
+          "name": "compute_rouge",
+          "params": [
+            "answer",
+            "reference"
+          ],
+          "returnType": "RougeScores",
+          "exported": true,
+          "lineCount": 19
+        },
+        {
+          "name": "evaluate_retrieval_relevance",
+          "params": [
+            "query",
+            "sources"
+          ],
+          "returnType": "RetrievalRelevanceScore",
+          "exported": true,
+          "lineCount": 32
+        },
+        {
+          "name": "evaluate_faithfulness",
+          "params": [
+            "query",
+            "answer",
+            "sources"
+          ],
+          "returnType": "FaithfulnessScore",
+          "exported": true,
+          "lineCount": 36
+        },
+        {
+          "name": "evaluate_single_query",
+          "params": [
+            "query",
+            "answer",
+            "sources"
+          ],
+          "returnType": "QualityMetrics",
+          "exported": true,
+          "lineCount": 25
+        },
+        {
+          "name": "aggregate_quality",
+          "params": [
+            "quality_list"
+          ],
+          "returnType": "QualityAggregated",
+          "exported": true,
+          "lineCount": 32
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "json",
+          "specifiers": [
+            "json"
+          ]
+        },
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "Path"
+          ]
+        },
+        {
+          "source": "jieba",
+          "specifiers": [
+            "jieba"
+          ]
+        },
+        {
+          "source": "rouge_chinese",
+          "specifiers": [
+            "Rouge"
+          ]
+        },
+        {
+          "source": "app.core.llm",
+          "specifiers": [
+            "get_llm"
+          ]
+        },
+        {
+          "source": "app.models.schemas",
+          "specifiers": [
+            "QualityMetrics",
+            "QualityAggregated",
+            "RougeScores",
+            "RetrievalRelevanceScore",
+            "FaithfulnessScore",
+            "SourceDocument"
+          ]
+        },
+        {
+          "source": "app.config",
+          "specifiers": [
+            "settings"
+          ]
+        }
+      ],
+      "exports": [
+        "_load_reference_answers",
+        "compute_rouge",
+        "evaluate_retrieval_relevance",
+        "evaluate_faithfulness",
+        "evaluate_single_query",
+        "aggregate_quality"
+      ],
+      "totalLines": 237,
+      "hasStructuralAnalysis": true
+    },
+    "backend/app/services/query_rewriter.py": {
+      "filePath": "backend/app/services/query_rewriter.py",
+      "contentHash": "aaa26a207ee6e2178e183e533b5dedea94ab1efaa9374f7ee052752ddb079e82",
+      "functions": [
+        {
+          "name": "normalize_legal_terms",
+          "params": [
+            "query"
+          ],
+          "returnType": "str",
+          "exported": true,
+          "lineCount": 13
+        },
+        {
+          "name": "multi_query_rewrite",
+          "params": [
+            "question"
+          ],
+          "returnType": "list[str]",
+          "exported": true,
+          "lineCount": 17
+        },
+        {
+          "name": "decompose_query",
+          "params": [
+            "question"
+          ],
+          "returnType": "list[str]",
+          "exported": true,
+          "lineCount": 17
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "app.core.llm",
+          "specifiers": [
+            "get_llm"
+          ]
+        },
+        {
+          "source": "app.services.prompts",
+          "specifiers": [
+            "DECOMPOSE_PROMPT"
+          ]
+        }
+      ],
+      "exports": [
+        "normalize_legal_terms",
+        "multi_query_rewrite",
+        "decompose_query"
+      ],
+      "totalLines": 99,
+      "hasStructuralAnalysis": true
+    },
+    "backend/app/services/rag_service.py": {
+      "filePath": "backend/app/services/rag_service.py",
+      "contentHash": "4e5ea33ae8d28a3b92c36c1891e25e45ac572faf4ebb0196e8eed983182152fa",
+      "functions": [
+        {
+          "name": "rag_query",
+          "params": [
+            "question",
+            "use_rerank",
+            "use_query_rewrite",
+            "top_k",
+            "collection",
+            "query_transform",
+            "rerank_strategy",
+            "generation_strategy",
+            "use_kg"
+          ],
+          "returnType": "ChatResponse",
+          "exported": true,
+          "lineCount": 39
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "app.models.schemas",
+          "specifiers": [
+            "ChatResponse"
+          ]
+        },
+        {
+          "source": "app.services.pipeline",
+          "specifiers": [
+            "RAGPipeline",
+            "PipelineConfig",
+            "QueryTransformStrategy",
+            "RerankStrategy",
+            "GenerationStrategy",
+            "resolve_collections",
+            "build_context"
+          ]
+        }
+      ],
+      "exports": [
+        "rag_query"
+      ],
+      "totalLines": 54,
+      "hasStructuralAnalysis": true
+    },
+    "backend/app/services/report_service.py": {
+      "filePath": "backend/app/services/report_service.py",
+      "contentHash": "22bdb4ea1273d11819b7aa9a6bb9256ef3606269524a83f4085d7c7177183f56",
+      "functions": [
+        {
+          "name": "_ensure_reports_dir",
+          "params": [],
+          "returnType": "Path",
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "generate_report",
+          "params": [
+            "benchmark"
+          ],
+          "returnType": "ReportFull",
+          "exported": true,
+          "lineCount": 44
+        },
+        {
+          "name": "list_reports",
+          "params": [],
+          "returnType": "list[ReportMeta]",
+          "exported": true,
+          "lineCount": 25
+        },
+        {
+          "name": "get_report_filepath",
+          "params": [
+            "report_id"
+          ],
+          "returnType": "Path | None",
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "_ensure_chat_records_dir",
+          "params": [],
+          "returnType": "Path",
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "save_chat_record",
+          "params": [
+            "record"
+          ],
+          "returnType": "str",
+          "exported": true,
+          "lineCount": 12
+        },
+        {
+          "name": "list_chat_records",
+          "params": [],
+          "returnType": "list[ChatRecordMeta]",
+          "exported": true,
+          "lineCount": 23
+        },
+        {
+          "name": "get_chat_record_filepath",
+          "params": [
+            "record_id"
+          ],
+          "returnType": "Path | None",
+          "exported": true,
+          "lineCount": 7
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "json",
+          "specifiers": [
+            "json"
+          ]
+        },
+        {
+          "source": "os",
+          "specifiers": [
+            "os"
+          ]
+        },
+        {
+          "source": "datetime",
+          "specifiers": [
+            "datetime"
+          ]
+        },
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "Path"
+          ]
+        },
+        {
+          "source": "uuid",
+          "specifiers": [
+            "uuid4"
+          ]
+        },
+        {
+          "source": "app.config",
+          "specifiers": [
+            "settings"
+          ]
+        },
+        {
+          "source": "app.models.schemas",
+          "specifiers": [
+            "BenchmarkResultV2",
+            "ReportMeta",
+            "ReportFull",
+            "ChatRecordMeta"
+          ]
+        }
+      ],
+      "exports": [
+        "_ensure_reports_dir",
+        "generate_report",
+        "list_reports",
+        "get_report_filepath",
+        "_ensure_chat_records_dir",
+        "save_chat_record",
+        "list_chat_records",
+        "get_chat_record_filepath"
+      ],
+      "totalLines": 162,
+      "hasStructuralAnalysis": true
+    },
+    "backend/app/services/reranker.py": {
+      "filePath": "backend/app/services/reranker.py",
+      "contentHash": "780503f539e8e98a07542283544bcf035ebe6954c402d8882d78ef42fffc3c64",
+      "functions": [
+        {
+          "name": "simple_rerank",
+          "params": [
+            "query",
+            "documents",
+            "top_k"
+          ],
+          "returnType": "list[tuple[Document, float]]",
+          "exported": true,
+          "lineCount": 34
+        },
+        {
+          "name": "llm_rerank",
+          "params": [
+            "query",
+            "documents",
+            "top_k"
+          ],
+          "returnType": "list[tuple[Document, float]]",
+          "exported": true,
+          "lineCount": 41
+        },
+        {
+          "name": "_parse_batch_scores",
+          "params": [
+            "text",
+            "expected_count"
+          ],
+          "returnType": "list[float]",
+          "exported": true,
+          "lineCount": 13
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "re",
+          "specifiers": [
+            "re"
+          ]
+        },
+        {
+          "source": "jieba",
+          "specifiers": [
+            "jieba"
+          ]
+        },
+        {
+          "source": "langchain_core.documents",
+          "specifiers": [
+            "Document"
+          ]
+        },
+        {
+          "source": "app.core.llm",
+          "specifiers": [
+            "get_llm"
+          ]
+        }
+      ],
+      "exports": [
+        "simple_rerank",
+        "llm_rerank",
+        "_parse_batch_scores"
+      ],
+      "totalLines": 124,
+      "hasStructuralAnalysis": true
+    },
+    "backend/app/services/self_reflect.py": {
+      "filePath": "backend/app/services/self_reflect.py",
+      "contentHash": "410f6d47c9c7e23d43aa8bd9d659ef716645eece087570e98c97c0d977af0724",
+      "functions": [
+        {
+          "name": "self_reflect_and_correct",
+          "params": [
+            "question",
+            "initial_answer",
+            "context",
+            "max_iterations"
+          ],
+          "returnType": "tuple[str, bool]",
+          "exported": true,
+          "lineCount": 44
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "app.core.llm",
+          "specifiers": [
+            "get_llm"
+          ]
+        },
+        {
+          "source": "app.services.prompts",
+          "specifiers": [
+            "SELF_REFLECT_PROMPT",
+            "SELF_REFLECT_CORRECT_PROMPT"
+          ]
+        }
+      ],
+      "exports": [
+        "self_reflect_and_correct"
+      ],
+      "totalLines": 54,
+      "hasStructuralAnalysis": true
+    },
+    "backend/app/utils/__init__.py": {
+      "filePath": "backend/app/utils/__init__.py",
+      "contentHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 1,
+      "hasStructuralAnalysis": true
+    },
+    "backend/app/utils/legal_chunker.py": {
+      "filePath": "backend/app/utils/legal_chunker.py",
+      "contentHash": "79072df7525f0efbdb6695cde337670d74ee0b61a47a94dc6c448957b733a8de",
+      "functions": [
+        {
+          "name": "extract_law_metadata",
+          "params": [
+            "text",
+            "filename"
+          ],
+          "returnType": "dict",
+          "exported": true,
+          "lineCount": 37
+        },
+        {
+          "name": "extract_case_metadata",
+          "params": [
+            "text",
+            "filename"
+          ],
+          "returnType": "dict",
+          "exported": true,
+          "lineCount": 32
+        },
+        {
+          "name": "enrich_chunk_metadata",
+          "params": [
+            "chunk",
+            "parent_metadata",
+            "chunk_index"
+          ],
+          "returnType": "Document",
+          "exported": true,
+          "lineCount": 35
+        },
+        {
+          "name": "add_contextual_header",
+          "params": [
+            "chunk",
+            "parent_metadata"
+          ],
+          "returnType": "Document",
+          "exported": true,
+          "lineCount": 33
+        },
+        {
+          "name": "split_legal_document",
+          "params": [
+            "text",
+            "doc_type",
+            "filename",
+            "chunk_size",
+            "chunk_overlap"
+          ],
+          "returnType": "list[Document]",
+          "exported": true,
+          "lineCount": 44
+        }
+      ],
+      "classes": [
+        {
+          "name": "LegalArticleSplitter",
+          "methods": [
+            "__init__"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 24
+        },
+        {
+          "name": "LegalCaseSplitter",
+          "methods": [
+            "__init__"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 24
+        }
+      ],
+      "imports": [
+        {
+          "source": "re",
+          "specifiers": [
+            "re"
+          ]
+        },
+        {
+          "source": "langchain_text_splitters",
+          "specifiers": [
+            "RecursiveCharacterTextSplitter"
+          ]
+        },
+        {
+          "source": "langchain_core.documents",
+          "specifiers": [
+            "Document"
+          ]
+        }
+      ],
+      "exports": [
+        "LegalArticleSplitter",
+        "LegalCaseSplitter",
+        "extract_law_metadata",
+        "extract_case_metadata",
+        "enrich_chunk_metadata",
+        "add_contextual_header",
+        "split_legal_document"
+      ],
+      "totalLines": 264,
+      "hasStructuralAnalysis": true
+    },
+    "backend/app/utils/metadata.py": {
+      "filePath": "backend/app/utils/metadata.py",
+      "contentHash": "3072ba6ed4eb28bde632fac539f9312565bf09e2aafb836c13222fcb330ab31d",
+      "functions": [
+        {
+          "name": "format_source_display",
+          "params": [
+            "metadata"
+          ],
+          "returnType": "str",
+          "exported": true,
+          "lineCount": 30
+        }
+      ],
+      "classes": [],
+      "imports": [],
+      "exports": [
+        "format_source_display"
+      ],
+      "totalLines": 34,
+      "hasStructuralAnalysis": true
+    },
+    "backend/scripts/__init__.py": {
+      "filePath": "backend/scripts/__init__.py",
+      "contentHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 1,
+      "hasStructuralAnalysis": true
+    },
+    "backend/scripts/crawl_laws.py": {
+      "filePath": "backend/scripts/crawl_laws.py",
+      "contentHash": "e9a7688cd7c8648ed9dce4c08c3a7453548435fcbcd437a28f74a1cbeeea8ee1",
+      "functions": [
+        {
+          "name": "fetch_json",
+          "params": [
+            "url",
+            "data",
+            "retries"
+          ],
+          "returnType": "dict",
+          "exported": true,
+          "lineCount": 17
+        },
+        {
+          "name": "fetch_law_list",
+          "params": [
+            "law_type",
+            "page",
+            "size"
+          ],
+          "returnType": "dict",
+          "exported": true,
+          "lineCount": 16
+        },
+        {
+          "name": "fetch_law_detail",
+          "params": [
+            "law_id"
+          ],
+          "returnType": "dict",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "clean_html",
+          "params": [
+            "html_text"
+          ],
+          "returnType": "str",
+          "exported": true,
+          "lineCount": 18
+        },
+        {
+          "name": "crawl_laws",
+          "params": [
+            "law_type",
+            "max_count",
+            "delay"
+          ],
+          "exported": true,
+          "lineCount": 84
+        },
+        {
+          "name": "main",
+          "params": [],
+          "exported": true,
+          "lineCount": 24
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "json",
+          "specifiers": [
+            "json"
+          ]
+        },
+        {
+          "source": "os",
+          "specifiers": [
+            "os"
+          ]
+        },
+        {
+          "source": "re",
+          "specifiers": [
+            "re"
+          ]
+        },
+        {
+          "source": "sys",
+          "specifiers": [
+            "sys"
+          ]
+        },
+        {
+          "source": "time",
+          "specifiers": [
+            "time"
+          ]
+        },
+        {
+          "source": "argparse",
+          "specifiers": [
+            "argparse"
+          ]
+        },
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "Path"
+          ]
+        },
+        {
+          "source": "urllib.request",
+          "specifiers": [
+            "Request",
+            "urlopen"
+          ]
+        },
+        {
+          "source": "urllib.error",
+          "specifiers": [
+            "URLError",
+            "HTTPError"
+          ]
+        }
+      ],
+      "exports": [
+        "fetch_json",
+        "fetch_law_list",
+        "fetch_law_detail",
+        "clean_html",
+        "crawl_laws",
+        "main"
+      ],
+      "totalLines": 225,
+      "hasStructuralAnalysis": true
+    },
+    "backend/scripts/import_data.py": {
+      "filePath": "backend/scripts/import_data.py",
+      "contentHash": "888a3821092cd8ac839e48d39d7e5c70d963a5a85f1ed713e402c098e0b2a9c5",
+      "functions": [
+        {
+          "name": "read_file",
+          "params": [
+            "filepath"
+          ],
+          "returnType": "str",
+          "exported": true,
+          "lineCount": 9
+        },
+        {
+          "name": "collect_files",
+          "params": [
+            "dir_path",
+            "extensions"
+          ],
+          "returnType": "list[str]",
+          "exported": true,
+          "lineCount": 11
+        },
+        {
+          "name": "_batch_add_documents",
+          "params": [
+            "store",
+            "chunks",
+            "batch_size"
+          ],
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "import_laws",
+          "params": [
+            "store",
+            "dir_path"
+          ],
+          "returnType": "int",
+          "exported": true,
+          "lineCount": 21
+        },
+        {
+          "name": "_extract_case_text",
+          "params": [
+            "obj"
+          ],
+          "returnType": "tuple[str, dict]",
+          "exported": true,
+          "lineCount": 39
+        },
+        {
+          "name": "import_cases_jsonl",
+          "params": [
+            "store",
+            "dir_path",
+            "max_cases"
+          ],
+          "returnType": "int",
+          "exported": true,
+          "lineCount": 68
+        },
+        {
+          "name": "main",
+          "params": [],
+          "exported": true,
+          "lineCount": 20
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "os",
+          "specifiers": [
+            "os"
+          ]
+        },
+        {
+          "source": "sys",
+          "specifiers": [
+            "sys"
+          ]
+        },
+        {
+          "source": "json",
+          "specifiers": [
+            "json"
+          ]
+        },
+        {
+          "source": "app.config",
+          "specifiers": [
+            "settings"
+          ]
+        },
+        {
+          "source": "app.core.vectorstore",
+          "specifiers": [
+            "get_vectorstore",
+            "reset_store_cache"
+          ]
+        },
+        {
+          "source": "app.utils.legal_chunker",
+          "specifiers": [
+            "split_legal_document"
+          ]
+        }
+      ],
+      "exports": [
+        "read_file",
+        "collect_files",
+        "_batch_add_documents",
+        "import_laws",
+        "_extract_case_text",
+        "import_cases_jsonl",
+        "main"
+      ],
+      "totalLines": 212,
+      "hasStructuralAnalysis": true
+    },
+    "backend/scripts/prepare_datasets.py": {
+      "filePath": "backend/scripts/prepare_datasets.py",
+      "contentHash": "9d4bfed16887322d394cd726e6154168727de5ef6f34f87dc2cb263d92153b1e",
+      "functions": [
+        {
+          "name": "convert_cail2018",
+          "params": [
+            "max_cases"
+          ],
+          "exported": true,
+          "lineCount": 106
+        },
+        {
+          "name": "convert_crime_qa_to_reference",
+          "params": [
+            "max_qa"
+          ],
+          "exported": true,
+          "lineCount": 97
+        },
+        {
+          "name": "convert_crime_kg",
+          "params": [],
+          "exported": true,
+          "lineCount": 60
+        },
+        {
+          "name": "process_lawrefbook",
+          "params": [],
+          "exported": true,
+          "lineCount": 26
+        },
+        {
+          "name": "download_disc_law_sft",
+          "params": [
+            "max_samples"
+          ],
+          "exported": true,
+          "lineCount": 34
+        },
+        {
+          "name": "print_summary",
+          "params": [],
+          "exported": true,
+          "lineCount": 25
+        },
+        {
+          "name": "main",
+          "params": [],
+          "exported": true,
+          "lineCount": 27
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "json",
+          "specifiers": [
+            "json"
+          ]
+        },
+        {
+          "source": "os",
+          "specifiers": [
+            "os"
+          ]
+        },
+        {
+          "source": "re",
+          "specifiers": [
+            "re"
+          ]
+        },
+        {
+          "source": "sys",
+          "specifiers": [
+            "sys"
+          ]
+        },
+        {
+          "source": "random",
+          "specifiers": [
+            "random"
+          ]
+        },
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "Path"
+          ]
+        }
+      ],
+      "exports": [
+        "convert_cail2018",
+        "convert_crime_qa_to_reference",
+        "convert_crime_kg",
+        "process_lawrefbook",
+        "download_disc_law_sft",
+        "print_summary",
+        "main"
+      ],
+      "totalLines": 422,
+      "hasStructuralAnalysis": true
+    },
+    "backend/scripts/run_integration_test.py": {
+      "filePath": "backend/scripts/run_integration_test.py",
+      "contentHash": "22bcdf1deabf8804ad6add6c19d2598a94a831033232846c119982b0870f2ebb",
+      "functions": [
+        {
+          "name": "run_one",
+          "params": [
+            "tc"
+          ],
+          "exported": true,
+          "lineCount": 36
+        },
+        {
+          "name": "main",
+          "params": [],
+          "exported": true,
+          "lineCount": 27
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "asyncio",
+          "specifiers": [
+            "asyncio"
+          ]
+        },
+        {
+          "source": "time",
+          "specifiers": [
+            "time"
+          ]
+        },
+        {
+          "source": "json",
+          "specifiers": [
+            "json"
+          ]
+        },
+        {
+          "source": "sys",
+          "specifiers": [
+            "sys"
+          ]
+        },
+        {
+          "source": "os",
+          "specifiers": [
+            "os"
+          ]
+        },
+        {
+          "source": "app.services.pipeline",
+          "specifiers": [
+            "RAGPipeline",
+            "PipelineConfig",
+            "QueryTransformStrategy",
+            "RerankStrategy",
+            "GenerationStrategy"
+          ]
+        }
+      ],
+      "exports": [
+        "run_one",
+        "main"
+      ],
+      "totalLines": 189,
+      "hasStructuralAnalysis": true
+    },
+    "backend/scripts/run_quality_eval.py": {
+      "filePath": "backend/scripts/run_quality_eval.py",
+      "contentHash": "09afcbc3e2611aa4ae33427a0607e6c55a9bcb135ca831a17dab6601972ab370",
+      "functions": [
+        {
+          "name": "main",
+          "params": [],
+          "exported": true,
+          "lineCount": 59
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "asyncio",
+          "specifiers": [
+            "asyncio"
+          ]
+        },
+        {
+          "source": "json",
+          "specifiers": [
+            "json"
+          ]
+        },
+        {
+          "source": "sys",
+          "specifiers": [
+            "sys"
+          ]
+        },
+        {
+          "source": "time",
+          "specifiers": [
+            "time"
+          ]
+        },
+        {
+          "source": "os",
+          "specifiers": [
+            "os"
+          ]
+        },
+        {
+          "source": "app.services.pipeline",
+          "specifiers": [
+            "RAGPipeline",
+            "PipelineConfig",
+            "QueryTransformStrategy",
+            "RerankStrategy",
+            "GenerationStrategy"
+          ]
+        },
+        {
+          "source": "app.services.quality_service",
+          "specifiers": [
+            "evaluate_single_query",
+            "aggregate_quality"
+          ]
+        },
+        {
+          "source": "app.models.schemas",
+          "specifiers": [
+            "SourceDocument"
+          ]
+        }
+      ],
+      "exports": [
+        "main"
+      ],
+      "totalLines": 114,
+      "hasStructuralAnalysis": true
+    },
+    "backend/tests/test_advanced_retrieval.py": {
+      "filePath": "backend/tests/test_advanced_retrieval.py",
+      "contentHash": "db4fe5bfaa35ea31962de3d1504f4102a1985ebcba661b040aab9343d9dfc972",
+      "functions": [
+        {
+          "name": "test_normalize_legal_terms_known_mappings",
+          "params": [],
+          "exported": true,
+          "lineCount": 9
+        },
+        {
+          "name": "test_normalize_legal_terms_no_change",
+          "params": [],
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "test_legal_term_map_coverage",
+          "params": [],
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "test_contextual_header_law",
+          "params": [],
+          "exported": true,
+          "lineCount": 15
+        },
+        {
+          "name": "test_contextual_header_case",
+          "params": [],
+          "exported": true,
+          "lineCount": 14
+        },
+        {
+          "name": "test_contextual_header_empty_metadata",
+          "params": [],
+          "exported": true,
+          "lineCount": 10
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "pytest",
+          "specifiers": [
+            "pytest"
+          ]
+        }
+      ],
+      "exports": [
+        "test_normalize_legal_terms_known_mappings",
+        "test_normalize_legal_terms_no_change",
+        "test_legal_term_map_coverage",
+        "test_contextual_header_law",
+        "test_contextual_header_case",
+        "test_contextual_header_empty_metadata"
+      ],
+      "totalLines": 75,
+      "hasStructuralAnalysis": true
+    },
+    "backend/tests/test_basic.py": {
+      "filePath": "backend/tests/test_basic.py",
+      "contentHash": "15895002311ac27a7dab708d65ff5076cac68882eba956ad7d390ab04889dd6b",
+      "functions": [
+        {
+          "name": "test_config_loads",
+          "params": [],
+          "exported": true,
+          "lineCount": 14
+        },
+        {
+          "name": "test_legal_chunker_law",
+          "params": [],
+          "exported": true,
+          "lineCount": 20
+        },
+        {
+          "name": "test_legal_chunker_case",
+          "params": [],
+          "exported": true,
+          "lineCount": 20
+        },
+        {
+          "name": "test_metadata_format",
+          "params": [],
+          "exported": true,
+          "lineCount": 12
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "pytest",
+          "specifiers": [
+            "pytest"
+          ]
+        }
+      ],
+      "exports": [
+        "test_config_loads",
+        "test_legal_chunker_law",
+        "test_legal_chunker_case",
+        "test_metadata_format"
+      ],
+      "totalLines": 78,
+      "hasStructuralAnalysis": true
+    },
+    "backend/tests/test_kg.py": {
+      "filePath": "backend/tests/test_kg.py",
+      "contentHash": "741756b67c44921d4c6c06b5c396f50b29e8373350adab271a5a4e287d96eba3",
+      "functions": [
+        {
+          "name": "test_load_crime_kg_entries",
+          "params": [],
+          "exported": true,
+          "lineCount": 9
+        },
+        {
+          "name": "test_load_crime_kg_structure",
+          "params": [],
+          "exported": true,
+          "lineCount": 11
+        },
+        {
+          "name": "test_kg_lookup_existing_crime",
+          "params": [],
+          "exported": true,
+          "lineCount": 10
+        },
+        {
+          "name": "test_kg_lookup_nonexistent_crime",
+          "params": [],
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "test_kg_lookup_multiple_crimes",
+          "params": [],
+          "exported": true,
+          "lineCount": 10
+        },
+        {
+          "name": "test_kg_lookup_empty_list",
+          "params": [],
+          "exported": true,
+          "lineCount": 6
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "pytest",
+          "specifiers": [
+            "pytest"
+          ]
+        }
+      ],
+      "exports": [
+        "test_load_crime_kg_entries",
+        "test_load_crime_kg_structure",
+        "test_kg_lookup_existing_crime",
+        "test_kg_lookup_nonexistent_crime",
+        "test_kg_lookup_multiple_crimes",
+        "test_kg_lookup_empty_list"
+      ],
+      "totalLines": 68,
+      "hasStructuralAnalysis": true
+    },
+    "backend/tests/test_pipeline.py": {
+      "filePath": "backend/tests/test_pipeline.py",
+      "contentHash": "b8dac6fbad6dc45220fd39aa85ff22f29e0985d4836537f2f01714971c3566d1",
+      "functions": [
+        {
+          "name": "test_pipeline_config_defaults",
+          "params": [],
+          "exported": true,
+          "lineCount": 11
+        },
+        {
+          "name": "test_pipeline_config_to_dict",
+          "params": [],
+          "exported": true,
+          "lineCount": 10
+        },
+        {
+          "name": "test_strategy_enum_values",
+          "params": [],
+          "exported": true,
+          "lineCount": 21
+        },
+        {
+          "name": "test_backward_compat_use_rerank_false",
+          "params": [],
+          "exported": true,
+          "lineCount": 13
+        },
+        {
+          "name": "test_backward_compat_use_query_rewrite_true",
+          "params": [],
+          "exported": true,
+          "lineCount": 12
+        },
+        {
+          "name": "test_resolve_collections",
+          "params": [],
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "test_build_context_empty",
+          "params": [],
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "test_build_context_with_docs",
+          "params": [],
+          "exported": true,
+          "lineCount": 11
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "pytest",
+          "specifiers": [
+            "pytest"
+          ]
+        }
+      ],
+      "exports": [
+        "test_pipeline_config_defaults",
+        "test_pipeline_config_to_dict",
+        "test_strategy_enum_values",
+        "test_backward_compat_use_rerank_false",
+        "test_backward_compat_use_query_rewrite_true",
+        "test_resolve_collections",
+        "test_build_context_empty",
+        "test_build_context_with_docs"
+      ],
+      "totalLines": 110,
+      "hasStructuralAnalysis": true
+    },
+    "frontend/src/App.jsx": {
+      "filePath": "frontend/src/App.jsx",
+      "contentHash": "a424a2d330db633b3814f41e2bacfd69c6e960e47ece2e5317580ec0d4232f1b",
+      "functions": [
+        {
+          "name": "App",
+          "params": [],
+          "exported": true,
+          "lineCount": 44
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "useState"
+          ]
+        },
+        {
+          "source": "lucide-react",
+          "specifiers": [
+            "MessageSquare",
+            "Database",
+            "Activity"
+          ]
+        },
+        {
+          "source": "./pages/ChatPage",
+          "specifiers": [
+            "ChatPage"
+          ]
+        },
+        {
+          "source": "./pages/KnowledgePage",
+          "specifiers": [
+            "KnowledgePage"
+          ]
+        },
+        {
+          "source": "./pages/PerformancePage",
+          "specifiers": [
+            "PerformancePage"
+          ]
+        }
+      ],
+      "exports": [
+        "App"
+      ],
+      "totalLines": 57,
+      "hasStructuralAnalysis": true
+    },
+    "frontend/src/main.jsx": {
+      "filePath": "frontend/src/main.jsx",
+      "contentHash": "f8eddde5d29e0839e3ab4be420c4481000144473b4c16bf81e544e72ac6607a7",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "React"
+          ]
+        },
+        {
+          "source": "react-dom/client",
+          "specifiers": [
+            "ReactDOM"
+          ]
+        },
+        {
+          "source": "./App",
+          "specifiers": [
+            "App"
+          ]
+        },
+        {
+          "source": "./styles/global.css",
+          "specifiers": []
+        }
+      ],
+      "exports": [],
+      "totalLines": 11,
+      "hasStructuralAnalysis": true
+    },
+    "frontend/src/pages/ChatPage.jsx": {
+      "filePath": "frontend/src/pages/ChatPage.jsx",
+      "contentHash": "ade7a7461015be5fe25475d2422fcdd405de688871e8bf19d5f938ebcad85366",
+      "functions": [
+        {
+          "name": "ChatPage",
+          "params": [],
+          "exported": true,
+          "lineCount": 358
+        },
+        {
+          "name": "MonitorPanel",
+          "params": [],
+          "exported": false,
+          "lineCount": 101
+        },
+        {
+          "name": "SysInfoMini",
+          "params": [],
+          "exported": false,
+          "lineCount": 19
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "useState",
+            "useRef",
+            "useEffect",
+            "useCallback"
+          ]
+        },
+        {
+          "source": "react-markdown",
+          "specifiers": [
+            "ReactMarkdown"
+          ]
+        },
+        {
+          "source": "lucide-react",
+          "specifiers": [
+            "Send",
+            "Activity",
+            "ChevronDown",
+            "ChevronUp",
+            "Download",
+            "Save",
+            "Clock",
+            "FileText"
+          ]
+        },
+        {
+          "source": "../services/api",
+          "specifiers": [
+            "sendChat",
+            "getSystemInfo",
+            "saveChatRecord",
+            "listChatRecords",
+            "getChatRecordDownloadUrl"
+          ]
+        }
+      ],
+      "exports": [
+        "ChatPage"
+      ],
+      "totalLines": 490,
+      "hasStructuralAnalysis": true
+    },
+    "frontend/src/pages/KnowledgePage.jsx": {
+      "filePath": "frontend/src/pages/KnowledgePage.jsx",
+      "contentHash": "942b79f46d381ed0b620a29989183ec933181659f136fbc55c8fe6d633f0ad73",
+      "functions": [
+        {
+          "name": "KnowledgePage",
+          "params": [],
+          "exported": true,
+          "lineCount": 140
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "useState",
+            "useEffect",
+            "useCallback"
+          ]
+        },
+        {
+          "source": "lucide-react",
+          "specifiers": [
+            "Upload",
+            "Trash2",
+            "RefreshCw",
+            "FileText"
+          ]
+        },
+        {
+          "source": "../services/api",
+          "specifiers": [
+            "listDocuments",
+            "uploadDocument",
+            "deleteDocument",
+            "rebuildIndex",
+            "getKBStats"
+          ]
+        }
+      ],
+      "exports": [
+        "KnowledgePage"
+      ],
+      "totalLines": 145,
+      "hasStructuralAnalysis": true
+    },
+    "frontend/src/pages/PerformancePage.jsx": {
+      "filePath": "frontend/src/pages/PerformancePage.jsx",
+      "contentHash": "1a68ef30c67a388694aa86aad752d9a3287ecd712fd01e3e308cc36afd5e3881",
+      "functions": [
+        {
+          "name": "PerformancePage",
+          "params": [],
+          "exported": true,
+          "lineCount": 267
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "useState",
+            "useEffect",
+            "useCallback"
+          ]
+        },
+        {
+          "source": "lucide-react",
+          "specifiers": [
+            "Activity",
+            "Play",
+            "Download",
+            "FileText",
+            "CheckSquare"
+          ]
+        },
+        {
+          "source": "recharts",
+          "specifiers": [
+            "BarChart",
+            "Bar",
+            "XAxis",
+            "YAxis",
+            "Tooltip",
+            "ResponsiveContainer"
+          ]
+        },
+        {
+          "source": "../services/api",
+          "specifiers": [
+            "getSystemInfo",
+            "runBenchmark",
+            "createReport",
+            "listReports",
+            "getReportDownloadUrl"
+          ]
+        }
+      ],
+      "exports": [
+        "PerformancePage"
+      ],
+      "totalLines": 273,
+      "hasStructuralAnalysis": true
+    },
+    "frontend/src/services/api.js": {
+      "filePath": "frontend/src/services/api.js",
+      "contentHash": "1e7ec29fea83f2029cb339e4b51e6752ff7ff37fcdd1dd2308f40e38f02be85c",
+      "functions": [
+        {
+          "name": "sendChat",
+          "params": [],
+          "exported": true,
+          "lineCount": 28
+        },
+        {
+          "name": "uploadDocument",
+          "params": [
+            "file",
+            "docType"
+          ],
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "listDocuments",
+          "params": [],
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "deleteDocument",
+          "params": [
+            "filename"
+          ],
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "rebuildIndex",
+          "params": [],
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "getKBStats",
+          "params": [],
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "getSystemInfo",
+          "params": [],
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "runBenchmark",
+          "params": [
+            "queries"
+          ],
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "createReport",
+          "params": [
+            "queries"
+          ],
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "listReports",
+          "params": [],
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "getReportDownloadUrl",
+          "params": [
+            "reportId"
+          ],
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "saveChatRecord",
+          "params": [
+            "record"
+          ],
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "listChatRecords",
+          "params": [],
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "getChatRecordDownloadUrl",
+          "params": [
+            "recordId"
+          ],
+          "exported": true,
+          "lineCount": 3
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "axios",
+          "specifiers": [
+            "axios"
+          ]
+        }
+      ],
+      "exports": [
+        "sendChat",
+        "uploadDocument",
+        "listDocuments",
+        "deleteDocument",
+        "rebuildIndex",
+        "getKBStats",
+        "getSystemInfo",
+        "runBenchmark",
+        "createReport",
+        "listReports",
+        "getReportDownloadUrl",
+        "saveChatRecord",
+        "listChatRecords",
+        "getChatRecordDownloadUrl"
+      ],
+      "totalLines": 116,
+      "hasStructuralAnalysis": true
+    },
+    "frontend/vite.config.js": {
+      "filePath": "frontend/vite.config.js",
+      "contentHash": "a06505047107c11012e1b0dd2721b8bc9592d854aa2c0e988bbd8910d6d47caf",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "vite",
+          "specifiers": [
+            "defineConfig"
+          ]
+        },
+        {
+          "source": "@vitejs/plugin-react",
+          "specifiers": [
+            "react"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 16,
+      "hasStructuralAnalysis": true
+    }
+  }
+}

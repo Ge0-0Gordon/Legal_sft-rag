@@ -1,0 +1,78 @@
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Node / frontend
+node_modules/
+dist/
+build/
+.vite/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# RAG runtime data
+git-rag/legal_rag/backend/data/
+git-rag/legal_rag/backend/chroma_db/
+git-rag/legal_rag/backend/reports/
+git-rag/legal_rag/backend/chat_records/
+
+# Downloaded datasets and processed local data
+DISC-Law-SFT/
+lf_data/
+
+# Training outputs, checkpoints, and model artifacts
+saves/
+outputs/
+checkpoints/
+*.safetensors
+*.pt
+*.pth
+*.ckpt
+*.bin
+trainer_state.json
+trainer_log.jsonl
+training_loss.png
+
+# Third-party source checkout kept locally
+LLaMA-Factory/
+
+# Personal documents and local handoff files
+*.pdf
+*.doc
+*.docx
+*.ppt
+*.pptx
+*.xls
+*.xlsx
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+
+# Logs and temp files
+*.log
+tmp/
+temp/

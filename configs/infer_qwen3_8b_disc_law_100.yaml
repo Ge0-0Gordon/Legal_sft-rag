@@ -1,0 +1,6 @@
+﻿model_name_or_path: D:/Models/Qwen3-8B
+adapter_name_or_path: ../saves/qwen3-8b/lora/disc_law_pair_qa_100
+template: qwen3_nothink
+finetuning_type: lora
+trust_remote_code: true
+quantization_bit: 4

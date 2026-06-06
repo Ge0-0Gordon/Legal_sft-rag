@@ -1,0 +1,4790 @@
+{
+  "version": "1.0.0",
+  "project": {
+    "name": "Legal-RAG",
+    "languages": [
+      "css",
+      "html",
+      "javascript",
+      "json",
+      "markdown",
+      "python",
+      "txt"
+    ],
+    "frameworks": [
+      "LangChain",
+      "FastAPI",
+      "Uvicorn",
+      "Pydantic",
+      "ChromaDB",
+      "BM25 (rank-bm25)",
+      "jieba",
+      "React",
+      "Vite",
+      "axios",
+      "recharts",
+      "react-markdown",
+      "Ollama (Qwen3:8B / BGE-M3)"
+    ],
+    "description": "基于 LangChain 与本地大模型的轻量化法律 RAG 系统，面向中国法律领域、可在消费级 GPU 上运行。以 LangChain 为编排框架，结合本地 Qwen3:8B 生成、BGE-M3 embedding 与 ChromaDB 向量库，实现文档加载、智能分块、向量化、语义检索与生成的完整 RAG 流程，并提供 FastAPI 后端与 React/Vite 前端。",
+    "analyzedAt": "2026-06-05T00:12:16.039Z",
+    "gitCommitHash": "7f99c8532aff512dd71ba89c756098baa4ea7389"
+  },
+  "nodes": [
+    {
+      "id": "file:backend/app/core/llm.py",
+      "type": "file",
+      "name": "llm.py",
+      "filePath": "backend/app/core/llm.py",
+      "summary": "封装 Ollama 本地大模型（ChatOllama）的工厂模块，提供按 model/temperature 缓存的 get_llm 实例获取与缓存清理。",
+      "tags": [
+        "factory",
+        "service",
+        "llm",
+        "ollama",
+        "缓存"
+      ],
+      "complexity": "simple",
+      "languageNotes": "采用模块级 _llm_cache 字典实现 LLM 实例缓存，避免重复初始化本地模型。"
+    },
+    {
+      "id": "function:backend/app/core/llm.py:get_llm",
+      "type": "function",
+      "name": "get_llm",
+      "filePath": "backend/app/core/llm.py",
+      "lineRange": [
+        11,
+        26
+      ],
+      "summary": "根据模型名与温度参数创建并缓存 ChatOllama 实例，是全项目获取本地 LLM 的统一入口。",
+      "tags": [
+        "factory",
+        "llm",
+        "缓存",
+        "ollama"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:backend/app/services/hyde.py",
+      "type": "file",
+      "name": "hyde.py",
+      "filePath": "backend/app/services/hyde.py",
+      "summary": "实现 HyDE（假设性文档）查询变换：让 LLM 生成针对问题的假想法律答案，用以增强后续向量检索的召回。",
+      "tags": [
+        "service",
+        "hyde",
+        "query-transform",
+        "rag",
+        "retrieval"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:backend/app/services/hyde.py:hyde_transform",
+      "type": "function",
+      "name": "hyde_transform",
+      "filePath": "backend/app/services/hyde.py",
+      "lineRange": [
+        11,
+        27
+      ],
+      "summary": "异步调用 LLM 为输入问题生成一段假设性法律文档，作为 HyDE 检索的查询替身。",
+      "tags": [
+        "hyde",
+        "query-transform",
+        "async",
+        "llm"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:backend/app/services/kg_service.py",
+      "type": "file",
+      "name": "kg_service.py",
+      "filePath": "backend/app/services/kg_service.py",
+      "summary": "罪名知识图谱服务：解析本地罪名 KG 文本、从问题中抽取罪名实体，并将命中罪名的构成要件/量刑/法条等信息组装为检索文档。",
+      "tags": [
+        "service",
+        "knowledge-graph",
+        "rag",
+        "实体抽取",
+        "legal",
+        "tested"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "使用 re 正则解析结构化罪名条目，并结合 LLM 进行罪名实体抽取，KG 以模块级缓存加载。"
+    },
+    {
+      "id": "function:backend/app/services/kg_service.py:_load_crime_kg",
+      "type": "function",
+      "name": "_load_crime_kg",
+      "filePath": "backend/app/services/kg_service.py",
+      "lineRange": [
+        19,
+        71
+      ],
+      "summary": "读取并正则解析本地罪名知识图谱文本文件，将每条罪名拆分为名称、概念、构成要件、量刑、法条、分类等字段并缓存。",
+      "tags": [
+        "knowledge-graph",
+        "parser",
+        "正则",
+        "缓存"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:backend/app/services/kg_service.py:extract_crime_entities",
+      "type": "function",
+      "name": "extract_crime_entities",
+      "filePath": "backend/app/services/kg_service.py",
+      "lineRange": [
+        76,
+        116
+      ],
+      "summary": "结合字符串匹配与 LLM 抽取，从用户问题中识别出 KG 中存在的罪名实体列表。",
+      "tags": [
+        "实体抽取",
+        "knowledge-graph",
+        "async",
+        "llm"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:backend/app/services/kg_service.py:kg_lookup",
+      "type": "function",
+      "name": "kg_lookup",
+      "filePath": "backend/app/services/kg_service.py",
+      "lineRange": [
+        121,
+        155
+      ],
+      "summary": "根据罪名列表从知识图谱查询详情，组装成 LangChain Document 列表供检索与上下文构建使用。",
+      "tags": [
+        "knowledge-graph",
+        "retrieval",
+        "document",
+        "legal"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:backend/app/services/pipeline.py",
+      "type": "file",
+      "name": "pipeline.py",
+      "filePath": "backend/app/services/pipeline.py",
+      "summary": "可插拔 RAG 核心流水线：通过策略枚举与 PipelineConfig 编排查询变换→混合检索→KG 增强→rerank→生成→自反思的完整链路，并产出分阶段耗时指标。",
+      "tags": [
+        "pipeline",
+        "rag",
+        "orchestration",
+        "strategy",
+        "entry-point",
+        "tested"
+      ],
+      "complexity": "complex",
+      "languageNotes": "使用 Enum 定义可切换策略、dataclass 风格配置，并大量采用 asyncio.gather 并行执行查询变换与检索。"
+    },
+    {
+      "id": "class:backend/app/services/pipeline.py:QueryTransformStrategy",
+      "type": "class",
+      "name": "QueryTransformStrategy",
+      "filePath": "backend/app/services/pipeline.py",
+      "lineRange": [
+        25,
+        30
+      ],
+      "summary": "枚举查询变换策略（如多查询改写、HyDE、问题分解等），供 pipeline 在运行时切换。",
+      "tags": [
+        "enum",
+        "strategy",
+        "query-transform",
+        "type-definition"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:backend/app/services/pipeline.py:PipelineConfig",
+      "type": "class",
+      "name": "PipelineConfig",
+      "filePath": "backend/app/services/pipeline.py",
+      "lineRange": [
+        49,
+        65
+      ],
+      "summary": "RAG 流水线配置对象，集中描述查询变换、rerank、生成策略、是否启用 KG、top_k 与目标集合等可调参数。",
+      "tags": [
+        "config",
+        "data-model",
+        "pipeline",
+        "strategy"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:backend/app/services/pipeline.py:RAGPipeline",
+      "type": "class",
+      "name": "RAGPipeline",
+      "filePath": "backend/app/services/pipeline.py",
+      "lineRange": [
+        70,
+        310
+      ],
+      "summary": "RAG 流水线主类，按配置串联查询变换、混合检索、KG 查询、rerank、生成与自反思各阶段，并记录分阶段性能指标输出 ChatResponse。",
+      "tags": [
+        "pipeline",
+        "rag",
+        "orchestration",
+        "async",
+        "service"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:backend/app/services/pipeline.py:build_context",
+      "type": "function",
+      "name": "build_context",
+      "filePath": "backend/app/services/pipeline.py",
+      "lineRange": [
+        325,
+        345
+      ],
+      "summary": "按文档来源优先级排序并截断，将检索到的文档拼装为受长度限制的 LLM 上下文字符串。",
+      "tags": [
+        "context",
+        "rag",
+        "格式化",
+        "utility"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:backend/app/services/pipeline.py:resolve_collections",
+      "type": "function",
+      "name": "resolve_collections",
+      "filePath": "backend/app/services/pipeline.py",
+      "lineRange": [
+        315,
+        322
+      ],
+      "summary": "将集合参数归一化为检索所需的集合名称列表。",
+      "tags": [
+        "utility",
+        "retrieval",
+        "config"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:backend/app/services/prompts.py",
+      "type": "file",
+      "name": "prompts.py",
+      "filePath": "backend/app/services/prompts.py",
+      "summary": "集中存放各服务复用的提示词模板（生成、改写、HyDE、rerank、自反思、KG 抽取等）的常量模块。",
+      "tags": [
+        "prompt",
+        "template",
+        "config",
+        "legal",
+        "llm"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "全部为模块级字符串常量，无函数/类定义，供其他服务 import 后 format 使用。"
+    },
+    {
+      "id": "file:backend/app/services/query_rewriter.py",
+      "type": "file",
+      "name": "query_rewriter.py",
+      "filePath": "backend/app/services/query_rewriter.py",
+      "summary": "查询改写服务：提供法律术语归一化、多查询改写与复杂问题分解，提升检索覆盖率与准确性。",
+      "tags": [
+        "service",
+        "query-transform",
+        "rag",
+        "legal",
+        "validation",
+        "tested"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:backend/app/services/query_rewriter.py:normalize_legal_terms",
+      "type": "function",
+      "name": "normalize_legal_terms",
+      "filePath": "backend/app/services/query_rewriter.py",
+      "lineRange": [
+        48,
+        60
+      ],
+      "summary": "依据法律术语映射表对查询进行口语到规范法律术语的替换归一化。",
+      "tags": [
+        "legal",
+        "normalization",
+        "query-transform",
+        "utility"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:backend/app/services/query_rewriter.py:multi_query_rewrite",
+      "type": "function",
+      "name": "multi_query_rewrite",
+      "filePath": "backend/app/services/query_rewriter.py",
+      "lineRange": [
+        63,
+        79
+      ],
+      "summary": "调用 LLM 将单个问题改写为多个语义等价的查询变体，扩大检索召回。",
+      "tags": [
+        "query-transform",
+        "async",
+        "llm",
+        "rag"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:backend/app/services/query_rewriter.py:decompose_query",
+      "type": "function",
+      "name": "decompose_query",
+      "filePath": "backend/app/services/query_rewriter.py",
+      "lineRange": [
+        82,
+        98
+      ],
+      "summary": "调用 LLM 将复杂问题拆解为若干子问题，以便分别检索后聚合。",
+      "tags": [
+        "query-transform",
+        "async",
+        "llm",
+        "分解"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:backend/app/services/reranker.py",
+      "type": "file",
+      "name": "reranker.py",
+      "filePath": "backend/app/services/reranker.py",
+      "summary": "重排序服务：提供基于 jieba 词重叠与元数据加权的轻量 simple_rerank，以及基于 LLM 批量打分的 llm_rerank。",
+      "tags": [
+        "service",
+        "rerank",
+        "rag",
+        "retrieval",
+        "llm"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "simple_rerank 使用 jieba 中文分词计算词集合重叠度，llm_rerank 通过批量提示词让模型打分。"
+    },
+    {
+      "id": "function:backend/app/services/reranker.py:simple_rerank",
+      "type": "function",
+      "name": "simple_rerank",
+      "filePath": "backend/app/services/reranker.py",
+      "lineRange": [
+        16,
+        49
+      ],
+      "summary": "基于 jieba 分词的词重叠度并叠加文档来源元数据权重，对检索文档进行轻量重排序。",
+      "tags": [
+        "rerank",
+        "jieba",
+        "中文分词",
+        "retrieval"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:backend/app/services/reranker.py:llm_rerank",
+      "type": "function",
+      "name": "llm_rerank",
+      "filePath": "backend/app/services/reranker.py",
+      "lineRange": [
+        68,
+        108
+      ],
+      "summary": "将候选文档批量提交 LLM 打分并按分数排序，实现高质量语义重排序，失败时回退到 simple_rerank。",
+      "tags": [
+        "rerank",
+        "async",
+        "llm",
+        "retrieval"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:backend/app/services/reranker.py:_parse_batch_scores",
+      "type": "function",
+      "name": "_parse_batch_scores",
+      "filePath": "backend/app/services/reranker.py",
+      "lineRange": [
+        111,
+        123
+      ],
+      "summary": "解析 LLM 批量打分的文本输出，提取每个文档的序号与分数并做范围裁剪。",
+      "tags": [
+        "parser",
+        "rerank",
+        "正则",
+        "serialization"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:backend/app/services/self_reflect.py",
+      "type": "file",
+      "name": "self_reflect.py",
+      "filePath": "backend/app/services/self_reflect.py",
+      "summary": "自反思纠错服务：让 LLM 对初版答案进行批判性反思并基于上下文迭代修正，提升生成答案的可靠性。",
+      "tags": [
+        "service",
+        "self-reflection",
+        "rag",
+        "llm",
+        "validation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:backend/app/services/self_reflect.py:self_reflect_and_correct",
+      "type": "function",
+      "name": "self_reflect_and_correct",
+      "filePath": "backend/app/services/self_reflect.py",
+      "lineRange": [
+        10,
+        53
+      ],
+      "summary": "对初始答案执行多轮自反思与基于上下文的纠错循环，返回经修正的更可信答案。",
+      "tags": [
+        "self-reflection",
+        "async",
+        "llm",
+        "纠错"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:backend/app/utils/metadata.py",
+      "type": "file",
+      "name": "metadata.py",
+      "filePath": "backend/app/utils/metadata.py",
+      "summary": "元数据展示工具：将法律/案例文档的来源元数据格式化为人类可读的引用来源字符串。",
+      "tags": [
+        "utility",
+        "metadata",
+        "格式化",
+        "legal",
+        "tested"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:backend/app/utils/metadata.py:format_source_display",
+      "type": "function",
+      "name": "format_source_display",
+      "filePath": "backend/app/utils/metadata.py",
+      "lineRange": [
+        4,
+        33
+      ],
+      "summary": "根据文档元数据中的法律名/条号或案件信息，拼装成统一的来源展示文本。",
+      "tags": [
+        "utility",
+        "metadata",
+        "格式化",
+        "legal"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:backend/scripts/run_integration_test.py",
+      "type": "file",
+      "name": "run_integration_test.py",
+      "filePath": "backend/scripts/run_integration_test.py",
+      "summary": "端到端集成测试脚本：用内置用例逐条驱动 RAGPipeline 执行并统计耗时、来源数与答案预览，最终汇总结果输出 JSON。",
+      "tags": [
+        "script",
+        "integration-test",
+        "rag",
+        "pipeline",
+        "entry-point"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:backend/scripts/run_integration_test.py:run_one",
+      "type": "function",
+      "name": "run_one",
+      "filePath": "backend/scripts/run_integration_test.py",
+      "lineRange": [
+        122,
+        157
+      ],
+      "summary": "为单个测试用例构建 PipelineConfig 并执行 RAGPipeline，记录耗时、来源数与答案摘要等结果。",
+      "tags": [
+        "integration-test",
+        "async",
+        "pipeline",
+        "rag"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:backend/scripts/run_integration_test.py:main",
+      "type": "function",
+      "name": "main",
+      "filePath": "backend/scripts/run_integration_test.py",
+      "lineRange": [
+        160,
+        186
+      ],
+      "summary": "集成测试入口：预热 LLM 与 embedding，遍历所有用例运行并打印汇总，将结果落盘为 JSON。",
+      "tags": [
+        "entry-point",
+        "integration-test",
+        "async",
+        "script"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:backend/app/api/__init__.py",
+      "type": "file",
+      "name": "__init__.py",
+      "filePath": "backend/app/api/__init__.py",
+      "summary": "API 路由层的空包初始化文件，将 api 目录标记为 Python 包。",
+      "tags": [
+        "entry-point",
+        "barrel",
+        "python-package"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:backend/app/api/chat.py",
+      "type": "file",
+      "name": "chat.py",
+      "filePath": "backend/app/api/chat.py",
+      "summary": "FastAPI 问答路由模块，提供 RAG 问答、系统监控、质量评估以及问答记录的保存、列出与下载接口。",
+      "tags": [
+        "api-handler",
+        "router",
+        "rag",
+        "endpoint",
+        "fastapi"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "使用 FastAPI APIRouter，prefix=\"/chat\"，路由处理函数均为 async。"
+    },
+    {
+      "id": "file:backend/app/api/knowledge.py",
+      "type": "file",
+      "name": "knowledge.py",
+      "filePath": "backend/app/api/knowledge.py",
+      "summary": "FastAPI 知识库管理路由，提供文档上传、列表、删除、索引重建与统计接口，委托 kb_service 处理业务逻辑。",
+      "tags": [
+        "api-handler",
+        "router",
+        "knowledge-base",
+        "endpoint",
+        "fastapi"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "prefix=\"/knowledge\"，upload 使用 UploadFile/File/Form 处理 multipart 上传。"
+    },
+    {
+      "id": "file:backend/app/api/performance.py",
+      "type": "file",
+      "name": "performance.py",
+      "filePath": "backend/app/api/performance.py",
+      "summary": "FastAPI 性能监控路由，提供系统资源查询、基准测试、报告生成与历史报告列出/下载接口。",
+      "tags": [
+        "api-handler",
+        "router",
+        "monitoring",
+        "endpoint",
+        "fastapi"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "prefix=\"/performance\"，调用 perf_service 与 report_service。"
+    },
+    {
+      "id": "file:backend/app/main.py",
+      "type": "file",
+      "name": "main.py",
+      "filePath": "backend/app/main.py",
+      "summary": "FastAPI 应用入口，装配 CORS 中间件、挂载 chat/knowledge/performance 路由，并在启动时预热本地 LLM 与 embedding 模型。",
+      "tags": [
+        "entry-point",
+        "fastapi",
+        "middleware",
+        "bootstrap",
+        "lifespan"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "包含 warmup_local_models 预热协程及 root/health_check 健康检查端点。"
+    },
+    {
+      "id": "file:backend/app/models/schemas.py",
+      "type": "file",
+      "name": "schemas.py",
+      "filePath": "backend/app/models/schemas.py",
+      "summary": "项目核心 Pydantic 数据模型集合，定义统一 API 响应、问答请求/响应、知识库、性能基准、质量评估及报告等 18 个 schema。",
+      "tags": [
+        "data-model",
+        "type-definition",
+        "schema",
+        "pydantic",
+        "validation"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "全部为 Pydantic BaseModel，被 API 层与各 service 广泛复用。"
+    },
+    {
+      "id": "file:backend/app/services/perf_service.py",
+      "type": "file",
+      "name": "perf_service.py",
+      "filePath": "backend/app/services/perf_service.py",
+      "summary": "性能监控服务，采集 CPU/内存信息、查询 Ollama 模型状态，并对一组查询运行 RAG 基准测试与可选质量评估。",
+      "tags": [
+        "service",
+        "monitoring",
+        "benchmark",
+        "rag"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "使用 psutil 采集系统指标，httpx.AsyncClient 异步查询 Ollama 状态。"
+    },
+    {
+      "id": "file:backend/app/services/rag_service.py",
+      "type": "file",
+      "name": "rag_service.py",
+      "filePath": "backend/app/services/rag_service.py",
+      "summary": "RAG 查询门面（facade），将请求参数组装为 PipelineConfig 并驱动 RAGPipeline 执行检索增强生成。",
+      "tags": [
+        "service",
+        "facade",
+        "rag",
+        "pipeline"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:backend/app/services/report_service.py",
+      "type": "file",
+      "name": "report_service.py",
+      "filePath": "backend/app/services/report_service.py",
+      "summary": "报告与问答记录持久化服务，负责生成/列出/读取性能报告 JSON 文件，以及保存/列出/读取问答性能记录。",
+      "tags": [
+        "service",
+        "persistence",
+        "report",
+        "serialization"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "以 JSON 文件形式落盘报告与记录，文件名含时间戳与 uuid4 短码。"
+    },
+    {
+      "id": "endpoint:backend/app/api/chat.py:POST /chat",
+      "type": "endpoint",
+      "name": "POST /chat",
+      "filePath": "backend/app/api/chat.py",
+      "lineRange": [
+        17,
+        60
+      ],
+      "summary": "RAG 问答端点，执行检索增强生成，支持问答前后系统快照监控与可选质量评估。",
+      "tags": [
+        "endpoint",
+        "api-handler",
+        "rag",
+        "post"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "endpoint:backend/app/api/chat.py:POST /chat/save-record",
+      "type": "endpoint",
+      "name": "POST /chat/save-record",
+      "filePath": "backend/app/api/chat.py",
+      "lineRange": [
+        63,
+        70
+      ],
+      "summary": "保存一次问答的性能记录并返回记录 ID。",
+      "tags": [
+        "endpoint",
+        "api-handler",
+        "persistence",
+        "post"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "endpoint:backend/app/api/chat.py:GET /chat/records",
+      "type": "endpoint",
+      "name": "GET /chat/records",
+      "filePath": "backend/app/api/chat.py",
+      "lineRange": [
+        73,
+        77
+      ],
+      "summary": "列出已保存的问答性能记录元数据。",
+      "tags": [
+        "endpoint",
+        "api-handler",
+        "get"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "endpoint:backend/app/api/chat.py:GET /chat/records/{record_id}",
+      "type": "endpoint",
+      "name": "GET /chat/records/{record_id}",
+      "filePath": "backend/app/api/chat.py",
+      "lineRange": [
+        80,
+        90
+      ],
+      "summary": "按 ID 下载问答性能记录的 JSON 文件，不存在时返回 404。",
+      "tags": [
+        "endpoint",
+        "api-handler",
+        "download",
+        "get"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "endpoint:backend/app/api/knowledge.py:POST /knowledge/upload",
+      "type": "endpoint",
+      "name": "POST /knowledge/upload",
+      "filePath": "backend/app/api/knowledge.py",
+      "lineRange": [
+        17,
+        33
+      ],
+      "summary": "上传文档到知识库，校验扩展名与非空内容后委托 kb_service 入库。",
+      "tags": [
+        "endpoint",
+        "api-handler",
+        "upload",
+        "post"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "endpoint:backend/app/api/knowledge.py:GET /knowledge/list",
+      "type": "endpoint",
+      "name": "GET /knowledge/list",
+      "filePath": "backend/app/api/knowledge.py",
+      "lineRange": [
+        37,
+        40
+      ],
+      "summary": "列出知识库中的文档文件信息。",
+      "tags": [
+        "endpoint",
+        "api-handler",
+        "get"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "endpoint:backend/app/api/knowledge.py:DELETE /knowledge/{filename}",
+      "type": "endpoint",
+      "name": "DELETE /knowledge/{filename}",
+      "filePath": "backend/app/api/knowledge.py",
+      "lineRange": [
+        44,
+        49
+      ],
+      "summary": "删除指定知识库文件，不存在时返回 404。",
+      "tags": [
+        "endpoint",
+        "api-handler",
+        "delete"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "endpoint:backend/app/api/knowledge.py:POST /knowledge/rebuild",
+      "type": "endpoint",
+      "name": "POST /knowledge/rebuild",
+      "filePath": "backend/app/api/knowledge.py",
+      "lineRange": [
+        53,
+        56
+      ],
+      "summary": "异步重建知识库向量索引并返回统计信息。",
+      "tags": [
+        "endpoint",
+        "api-handler",
+        "post"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "endpoint:backend/app/api/knowledge.py:GET /knowledge/stats",
+      "type": "endpoint",
+      "name": "GET /knowledge/stats",
+      "filePath": "backend/app/api/knowledge.py",
+      "lineRange": [
+        60,
+        63
+      ],
+      "summary": "返回知识库统计数据（文件数、分块数、集合等）。",
+      "tags": [
+        "endpoint",
+        "api-handler",
+        "get"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "endpoint:backend/app/api/performance.py:GET /performance/system",
+      "type": "endpoint",
+      "name": "GET /performance/system",
+      "filePath": "backend/app/api/performance.py",
+      "lineRange": [
+        13,
+        16
+      ],
+      "summary": "获取当前系统 CPU 与内存资源状态。",
+      "tags": [
+        "endpoint",
+        "api-handler",
+        "monitoring",
+        "get"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "endpoint:backend/app/api/performance.py:POST /performance/bench",
+      "type": "endpoint",
+      "name": "POST /performance/bench",
+      "filePath": "backend/app/api/performance.py",
+      "lineRange": [
+        20,
+        31
+      ],
+      "summary": "对一组查询运行 RAG 基准测试，可选启用 rerank 与质量评估。",
+      "tags": [
+        "endpoint",
+        "api-handler",
+        "benchmark",
+        "post"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "endpoint:backend/app/api/performance.py:POST /performance/report",
+      "type": "endpoint",
+      "name": "POST /performance/report",
+      "filePath": "backend/app/api/performance.py",
+      "lineRange": [
+        35,
+        47
+      ],
+      "summary": "运行基准测试与质量评估，生成并保存完整性能报告。",
+      "tags": [
+        "endpoint",
+        "api-handler",
+        "report",
+        "post"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "endpoint:backend/app/api/performance.py:GET /performance/reports",
+      "type": "endpoint",
+      "name": "GET /performance/reports",
+      "filePath": "backend/app/api/performance.py",
+      "lineRange": [
+        51,
+        54
+      ],
+      "summary": "列出历史性能报告的元数据。",
+      "tags": [
+        "endpoint",
+        "api-handler",
+        "get"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "endpoint:backend/app/api/performance.py:GET /performance/reports/{report_id}",
+      "type": "endpoint",
+      "name": "GET /performance/reports/{report_id}",
+      "filePath": "backend/app/api/performance.py",
+      "lineRange": [
+        58,
+        67
+      ],
+      "summary": "按 ID 下载指定性能报告的 JSON 文件，不存在时返回 404。",
+      "tags": [
+        "endpoint",
+        "api-handler",
+        "download",
+        "get"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:backend/app/main.py:warmup_local_models",
+      "type": "function",
+      "name": "warmup_local_models",
+      "filePath": "backend/app/main.py",
+      "lineRange": [
+        32,
+        50
+      ],
+      "summary": "应用启动时预热本地 LLM 与 embedding 模型，触发一次轻量调用以减少首次请求延迟。",
+      "tags": [
+        "bootstrap",
+        "warmup",
+        "async"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:backend/app/main.py:health_check",
+      "type": "function",
+      "name": "health_check",
+      "filePath": "backend/app/main.py",
+      "lineRange": [
+        64,
+        78
+      ],
+      "summary": "健康检查端点，汇总知识库统计与 Ollama 服务状态以反映系统就绪情况。",
+      "tags": [
+        "health-check",
+        "endpoint",
+        "monitoring"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:backend/app/services/perf_service.py:get_system_info",
+      "type": "function",
+      "name": "get_system_info",
+      "filePath": "backend/app/services/perf_service.py",
+      "lineRange": [
+        30,
+        38
+      ],
+      "summary": "同步采集当前系统资源状态，返回包含 CPU 占用率、内存使用率及内存用量/总量的 SystemInfo 对象。",
+      "tags": [
+        "monitoring",
+        "system-info",
+        "psutil"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:backend/app/services/perf_service.py:get_ollama_status",
+      "type": "function",
+      "name": "get_ollama_status",
+      "filePath": "backend/app/services/perf_service.py",
+      "lineRange": [
+        41,
+        65
+      ],
+      "summary": "异步查询本地 Ollama 服务的运行状态与已加载模型信息，含显存占用汇总与异常兜底。",
+      "tags": [
+        "monitoring",
+        "ollama",
+        "async",
+        "http-client"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:backend/app/services/perf_service.py:run_benchmark",
+      "type": "function",
+      "name": "run_benchmark",
+      "filePath": "backend/app/services/perf_service.py",
+      "lineRange": [
+        68,
+        138
+      ],
+      "summary": "对一组查询逐条执行 RAG 并统计延迟、检索/生成耗时与 QPS，可选进行质量评估并聚合，返回 BenchmarkResultV2。",
+      "tags": [
+        "benchmark",
+        "rag",
+        "metrics",
+        "quality-eval"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:backend/app/services/rag_service.py:rag_query",
+      "type": "function",
+      "name": "rag_query",
+      "filePath": "backend/app/services/rag_service.py",
+      "lineRange": [
+        15,
+        53
+      ],
+      "summary": "将问答请求参数解析为 PipelineConfig 并构造 RAGPipeline 执行检索增强生成的门面函数。",
+      "tags": [
+        "facade",
+        "rag",
+        "pipeline",
+        "async"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:backend/app/services/report_service.py:generate_report",
+      "type": "function",
+      "name": "generate_report",
+      "filePath": "backend/app/services/report_service.py",
+      "lineRange": [
+        25,
+        68
+      ],
+      "summary": "基于基准测试结果生成完整性能报告，附加系统快照与知识库统计并以 JSON 落盘。",
+      "tags": [
+        "report",
+        "persistence",
+        "serialization"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:backend/app/services/report_service.py:list_reports",
+      "type": "function",
+      "name": "list_reports",
+      "filePath": "backend/app/services/report_service.py",
+      "lineRange": [
+        71,
+        95
+      ],
+      "summary": "扫描报告目录读取各 JSON 报告并提取元数据列表，按文件名倒序返回。",
+      "tags": [
+        "report",
+        "persistence",
+        "listing"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:backend/app/services/report_service.py:save_chat_record",
+      "type": "function",
+      "name": "save_chat_record",
+      "filePath": "backend/app/services/report_service.py",
+      "lineRange": [
+        116,
+        127
+      ],
+      "summary": "将一次问答的性能记录以带时间戳与 uuid 的 JSON 文件保存并返回记录 ID。",
+      "tags": [
+        "persistence",
+        "serialization",
+        "chat-record"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:backend/app/services/report_service.py:list_chat_records",
+      "type": "function",
+      "name": "list_chat_records",
+      "filePath": "backend/app/services/report_service.py",
+      "lineRange": [
+        130,
+        152
+      ],
+      "summary": "扫描问答记录目录读取各 JSON 并提取记录元数据列表，按文件名倒序返回。",
+      "tags": [
+        "persistence",
+        "listing",
+        "chat-record"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:backend/app/models/schemas.py:ChatRequest",
+      "type": "class",
+      "name": "ChatRequest",
+      "filePath": "backend/app/models/schemas.py",
+      "lineRange": [
+        63,
+        75
+      ],
+      "summary": "问答请求模型，封装问题、rerank/query-rewrite 开关、top_k、集合、质量评估、系统监控及各类策略选项。",
+      "tags": [
+        "data-model",
+        "schema",
+        "request",
+        "pydantic"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:backend/app/models/schemas.py:ChatResponse",
+      "type": "class",
+      "name": "ChatResponse",
+      "filePath": "backend/app/models/schemas.py",
+      "lineRange": [
+        98,
+        109
+      ],
+      "summary": "问答响应模型，包含答案、来源文档、阶段耗时指标、改写查询、系统快照、质量评估与 KG 实体等。",
+      "tags": [
+        "data-model",
+        "schema",
+        "response",
+        "pydantic"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:backend/app/models/schemas.py:BenchmarkResultV2",
+      "type": "class",
+      "name": "BenchmarkResultV2",
+      "filePath": "backend/app/models/schemas.py",
+      "lineRange": [
+        141,
+        151
+      ],
+      "summary": "增强版基准测试结果模型，在延迟/QPS 等指标基础上增加聚合质量与逐查询质量明细。",
+      "tags": [
+        "data-model",
+        "schema",
+        "benchmark",
+        "pydantic"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:backend/app/models/schemas.py:ReportFull",
+      "type": "class",
+      "name": "ReportFull",
+      "filePath": "backend/app/models/schemas.py",
+      "lineRange": [
+        166,
+        173
+      ],
+      "summary": "完整性能报告模型，聚合报告 ID、系统快照、基准结果与知识库信息等。",
+      "tags": [
+        "data-model",
+        "schema",
+        "report",
+        "pydantic"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:backend/app/models/schemas.py:StageMetrics",
+      "type": "class",
+      "name": "StageMetrics",
+      "filePath": "backend/app/models/schemas.py",
+      "lineRange": [
+        84,
+        95
+      ],
+      "summary": "RAG 各阶段耗时与统计模型，记录查询改写、检索、rerank、生成、KG 查询及自反思等耗时与 LLM 调用次数。",
+      "tags": [
+        "data-model",
+        "schema",
+        "metrics",
+        "pydantic"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:backend/app/config.py",
+      "type": "file",
+      "name": "config.py",
+      "filePath": "backend/app/config.py",
+      "summary": "基于 pydantic-settings 的全局配置中心，集中定义 Ollama 端点、LLM/embedding 模型、ChromaDB 持久化目录、检索权重（BM25/向量）与各类业务参数。",
+      "tags": [
+        "config",
+        "configuration",
+        "pydantic-settings",
+        "singleton",
+        "tested"
+      ],
+      "complexity": "simple",
+      "languageNotes": "使用 pydantic-settings 的 BaseSettings，支持从环境变量与 .env 文件加载配置。"
+    },
+    {
+      "id": "class:backend/app/config.py:Settings",
+      "type": "class",
+      "name": "Settings",
+      "filePath": "backend/app/config.py",
+      "lineRange": [
+        7,
+        51
+      ],
+      "summary": "应用配置类，聚合 28 项配置字段，涵盖模型、向量库、检索权重、目录路径及 RAG pipeline 默认策略。",
+      "tags": [
+        "config",
+        "data-model",
+        "settings"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:backend/app/core/embeddings.py",
+      "type": "file",
+      "name": "embeddings.py",
+      "filePath": "backend/app/core/embeddings.py",
+      "summary": "BGE-M3 embedding 封装，通过 Ollama 提供向量化能力，供 vector store 与检索环节复用。",
+      "tags": [
+        "service",
+        "embedding",
+        "factory",
+        "ollama"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:backend/app/core/embeddings.py:get_embeddings",
+      "type": "function",
+      "name": "get_embeddings",
+      "filePath": "backend/app/core/embeddings.py",
+      "lineRange": [
+        9,
+        16
+      ],
+      "summary": "构造并返回基于 Ollama 的 BGE-M3 OllamaEmbeddings 实例。",
+      "tags": [
+        "embedding",
+        "factory",
+        "ollama"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:backend/app/core/retriever.py",
+      "type": "file",
+      "name": "retriever.py",
+      "filePath": "backend/app/core/retriever.py",
+      "summary": "混合检索核心：基于 jieba 分词的中文 BM25 检索器与融合 BM25 + 向量召回（RRF 排序）的 HybridRetriever，并支持 split-query/HyDE 多子查询检索。",
+      "tags": [
+        "service",
+        "retrieval",
+        "bm25",
+        "hybrid-search",
+        "rrf"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "BM25 与向量结果通过 hash 去重并按融合分数排序，实现 RRF 风格的混合召回。"
+    },
+    {
+      "id": "class:backend/app/core/retriever.py:BM25ChineseRetriever",
+      "type": "class",
+      "name": "BM25ChineseRetriever",
+      "filePath": "backend/app/core/retriever.py",
+      "lineRange": [
+        12,
+        45
+      ],
+      "summary": "中文 BM25 检索器，使用 jieba 对语料分词并以 BM25Okapi 计算相关性得分返回 top-k 文档。",
+      "tags": [
+        "retrieval",
+        "bm25",
+        "chinese-nlp"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:backend/app/core/retriever.py:HybridRetriever",
+      "type": "class",
+      "name": "HybridRetriever",
+      "filePath": "backend/app/core/retriever.py",
+      "lineRange": [
+        48,
+        157
+      ],
+      "summary": "混合检索器，从 ChromaDB 加载 BM25 语料，融合 BM25 与多 collection 向量召回结果，并提供面向拆分子查询的检索方法。",
+      "tags": [
+        "retrieval",
+        "hybrid-search",
+        "rrf",
+        "vector-store"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:backend/app/core/retriever.py:get_hybrid_retriever",
+      "type": "function",
+      "name": "get_hybrid_retriever",
+      "filePath": "backend/app/core/retriever.py",
+      "lineRange": [
+        160,
+        165
+      ],
+      "summary": "工厂函数，依据 collection 名称构造并返回 HybridRetriever 实例。",
+      "tags": [
+        "retrieval",
+        "factory"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:backend/app/core/vectorstore.py",
+      "type": "file",
+      "name": "vectorstore.py",
+      "filePath": "backend/app/core/vectorstore.py",
+      "summary": "ChromaDB vector store 封装，带缓存地按 collection 返回 Chroma 实例并提供缓存重置能力。",
+      "tags": [
+        "service",
+        "vector-store",
+        "chromadb",
+        "factory"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:backend/app/core/vectorstore.py:get_vectorstore",
+      "type": "function",
+      "name": "get_vectorstore",
+      "filePath": "backend/app/core/vectorstore.py",
+      "lineRange": [
+        11,
+        22
+      ],
+      "summary": "按 collection 名称构造（并缓存）绑定 BGE-M3 embedding 的 ChromaDB 持久化 vector store。",
+      "tags": [
+        "vector-store",
+        "chromadb",
+        "factory",
+        "singleton"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:backend/app/services/kb_service.py",
+      "type": "file",
+      "name": "kb_service.py",
+      "filePath": "backend/app/services/kb_service.py",
+      "summary": "知识库服务，负责文档上传、列表、删除、统计以及对法律/案例 collection 的全量重建（rebuild），串联 chunker 与 ChromaDB 写入。",
+      "tags": [
+        "service",
+        "knowledge-base",
+        "vector-store",
+        "ingestion"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:backend/app/services/kb_service.py:_collect_files",
+      "type": "function",
+      "name": "_collect_files",
+      "filePath": "backend/app/services/kb_service.py",
+      "lineRange": [
+        36,
+        48
+      ],
+      "summary": "递归遍历目录，按扩展名过滤并返回排序后的文件路径列表。",
+      "tags": [
+        "utility",
+        "file-system"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:backend/app/services/kb_service.py:get_kb_stats",
+      "type": "function",
+      "name": "get_kb_stats",
+      "filePath": "backend/app/services/kb_service.py",
+      "lineRange": [
+        63,
+        80
+      ],
+      "summary": "汇总各 collection 的向量条目数与源文件数量，构造并返回知识库统计信息。",
+      "tags": [
+        "service",
+        "statistics",
+        "vector-store"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:backend/app/services/kb_service.py:upload_document",
+      "type": "function",
+      "name": "upload_document",
+      "filePath": "backend/app/services/kb_service.py",
+      "lineRange": [
+        85,
+        116
+      ],
+      "summary": "落盘上传文档，调用 legal chunker 分块并增量写入对应 ChromaDB collection。",
+      "tags": [
+        "service",
+        "ingestion",
+        "chunking",
+        "vector-store"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:backend/app/services/kb_service.py:list_documents",
+      "type": "function",
+      "name": "list_documents",
+      "filePath": "backend/app/services/kb_service.py",
+      "lineRange": [
+        121,
+        135
+      ],
+      "summary": "列出知识库目录下的源文件及其大小等元信息。",
+      "tags": [
+        "service",
+        "knowledge-base",
+        "file-system"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:backend/app/services/kb_service.py:rebuild_index",
+      "type": "function",
+      "name": "rebuild_index",
+      "filePath": "backend/app/services/kb_service.py",
+      "lineRange": [
+        152,
+        230
+      ],
+      "summary": "全量重建检索索引：清空并重建 ChromaDB collection，对法律文本与 JSONL 案例分块、批量写入并刷新缓存。",
+      "tags": [
+        "service",
+        "ingestion",
+        "vector-store",
+        "chunking"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:backend/app/utils/legal_chunker.py",
+      "type": "file",
+      "name": "legal_chunker.py",
+      "filePath": "backend/app/utils/legal_chunker.py",
+      "summary": "法律文本分块核心：LegalArticleSplitter/LegalCaseSplitter 按条款/案例切分，并抽取元数据、注入上下文标题（contextual header）以提升检索质量，是项目关键优化点。",
+      "tags": [
+        "utility",
+        "chunking",
+        "contextual-header",
+        "metadata",
+        "tested"
+      ],
+      "complexity": "complex",
+      "languageNotes": "大量使用正则提取法条章节、案例标题与关键词，并把父级元数据拼成上下文前缀注入每个 chunk。"
+    },
+    {
+      "id": "class:backend/app/utils/legal_chunker.py:LegalArticleSplitter",
+      "type": "class",
+      "name": "LegalArticleSplitter",
+      "filePath": "backend/app/utils/legal_chunker.py",
+      "lineRange": [
+        17,
+        40
+      ],
+      "summary": "按法律条款边界切分文本的递归字符分割器子类，针对“第X条”等结构定制分隔符。",
+      "tags": [
+        "chunking",
+        "text-splitter",
+        "legal"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:backend/app/utils/legal_chunker.py:LegalCaseSplitter",
+      "type": "class",
+      "name": "LegalCaseSplitter",
+      "filePath": "backend/app/utils/legal_chunker.py",
+      "lineRange": [
+        43,
+        66
+      ],
+      "summary": "面向案例文本的递归字符分割器子类，按案例结构定制分隔符与块大小。",
+      "tags": [
+        "chunking",
+        "text-splitter",
+        "legal"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:backend/app/utils/legal_chunker.py:extract_law_metadata",
+      "type": "function",
+      "name": "extract_law_metadata",
+      "filePath": "backend/app/utils/legal_chunker.py",
+      "lineRange": [
+        71,
+        107
+      ],
+      "summary": "用正则从法律文本与文件名中抽取法律名称、生效日期等元数据。",
+      "tags": [
+        "metadata",
+        "regex",
+        "legal"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:backend/app/utils/legal_chunker.py:extract_case_metadata",
+      "type": "function",
+      "name": "extract_case_metadata",
+      "filePath": "backend/app/utils/legal_chunker.py",
+      "lineRange": [
+        110,
+        141
+      ],
+      "summary": "用正则从案例文本中抽取指导案例编号、案号、关键词等元数据。",
+      "tags": [
+        "metadata",
+        "regex",
+        "legal"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:backend/app/utils/legal_chunker.py:enrich_chunk_metadata",
+      "type": "function",
+      "name": "enrich_chunk_metadata",
+      "filePath": "backend/app/utils/legal_chunker.py",
+      "lineRange": [
+        144,
+        178
+      ],
+      "summary": "为单个 chunk 补充章节、条号、段落类型及父级元数据，丰富检索可用的结构信息。",
+      "tags": [
+        "metadata",
+        "chunking",
+        "enrichment"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:backend/app/utils/legal_chunker.py:add_contextual_header",
+      "type": "function",
+      "name": "add_contextual_header",
+      "filePath": "backend/app/utils/legal_chunker.py",
+      "lineRange": [
+        183,
+        215
+      ],
+      "summary": "将法律名称、章节、条号等上下文信息拼成标题前缀注入 chunk 正文，是提升检索召回的核心优化。",
+      "tags": [
+        "contextual-header",
+        "chunking",
+        "optimization"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:backend/app/utils/legal_chunker.py:split_legal_document",
+      "type": "function",
+      "name": "split_legal_document",
+      "filePath": "backend/app/utils/legal_chunker.py",
+      "lineRange": [
+        220,
+        263
+      ],
+      "summary": "分块入口：按文档类型选择 splitter，切分文本、抽取与丰富元数据并按配置注入上下文标题，返回 chunk 列表。",
+      "tags": [
+        "chunking",
+        "entry-point",
+        "contextual-header"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:backend/scripts/import_data.py",
+      "type": "file",
+      "name": "import_data.py",
+      "filePath": "backend/scripts/import_data.py",
+      "summary": "离线数据导入脚本，读取法律文本与 JSONL 案例，经 legal chunker 分块后批量写入 ChromaDB 各 collection。",
+      "tags": [
+        "script",
+        "ingestion",
+        "data-pipeline",
+        "vector-store"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:backend/scripts/import_data.py:collect_files",
+      "type": "function",
+      "name": "collect_files",
+      "filePath": "backend/scripts/import_data.py",
+      "lineRange": [
+        35,
+        45
+      ],
+      "summary": "递归遍历目录，按扩展名过滤返回排序后的文件路径列表。",
+      "tags": [
+        "utility",
+        "file-system"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:backend/scripts/import_data.py:import_laws",
+      "type": "function",
+      "name": "import_laws",
+      "filePath": "backend/scripts/import_data.py",
+      "lineRange": [
+        54,
+        74
+      ],
+      "summary": "读取法律文本目录，逐文件分块并批量写入向量库。",
+      "tags": [
+        "ingestion",
+        "data-pipeline",
+        "chunking"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:backend/scripts/import_data.py:_extract_case_text",
+      "type": "function",
+      "name": "_extract_case_text",
+      "filePath": "backend/scripts/import_data.py",
+      "lineRange": [
+        77,
+        115
+      ],
+      "summary": "从案例 JSON 对象中拼装可检索文本，整合标题、关键词、正文及额外元数据。",
+      "tags": [
+        "ingestion",
+        "serialization",
+        "legal"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:backend/scripts/import_data.py:import_cases_jsonl",
+      "type": "function",
+      "name": "import_cases_jsonl",
+      "filePath": "backend/scripts/import_data.py",
+      "lineRange": [
+        118,
+        185
+      ],
+      "summary": "逐行解析 JSONL 案例文件，抽取文本、分块并附加元数据后分批写入向量库，支持最大条数限制。",
+      "tags": [
+        "ingestion",
+        "data-pipeline",
+        "chunking",
+        "vector-store"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:backend/scripts/import_data.py:main",
+      "type": "function",
+      "name": "main",
+      "filePath": "backend/scripts/import_data.py",
+      "lineRange": [
+        188,
+        207
+      ],
+      "summary": "脚本入口，重置缓存并依次导入法律与案例数据到对应 collection。",
+      "tags": [
+        "entry-point",
+        "ingestion",
+        "data-pipeline"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:frontend/src/main.jsx",
+      "type": "file",
+      "name": "main.jsx",
+      "filePath": "frontend/src/main.jsx",
+      "summary": "React 应用入口文件，使用 ReactDOM 将根组件 App 挂载到 DOM 并引入全局样式 global.css。",
+      "tags": [
+        "entry-point",
+        "react",
+        "bootstrap",
+        "vite"
+      ],
+      "complexity": "simple",
+      "languageNotes": "标准的 React 18 createRoot 引导文件。"
+    },
+    {
+      "id": "file:frontend/src/App.jsx",
+      "type": "file",
+      "name": "App.jsx",
+      "filePath": "frontend/src/App.jsx",
+      "summary": "前端根组件，维护当前页面 state 并在智能问答、知识库管理、性能监控三个页面之间进行顶部导航切换。",
+      "tags": [
+        "entry-point",
+        "react",
+        "component",
+        "navigation",
+        "routing"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:frontend/src/pages/ChatPage.jsx",
+      "type": "file",
+      "name": "ChatPage.jsx",
+      "filePath": "frontend/src/pages/ChatPage.jsx",
+      "summary": "智能问答页面，提供可插拔的 RAG 策略配置（查询改写、重排、生成策略、知识图谱）、消息流展示、实时监控面板与问答记录的保存/下载。",
+      "tags": [
+        "component",
+        "page",
+        "api-handler",
+        "chat",
+        "state-management"
+      ],
+      "complexity": "complex",
+      "languageNotes": "大量使用 useState/useCallback/useEffect hook，并包含 MonitorPanel、SysInfoMini 两个内部子组件。"
+    },
+    {
+      "id": "file:frontend/src/pages/KnowledgePage.jsx",
+      "type": "file",
+      "name": "KnowledgePage.jsx",
+      "filePath": "frontend/src/pages/KnowledgePage.jsx",
+      "summary": "知识库管理页面，支持文档上传（按类型）、文件列表展示与删除、索引重建以及知识库统计信息的查看。",
+      "tags": [
+        "component",
+        "page",
+        "api-handler",
+        "knowledge-base",
+        "upload"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:frontend/src/pages/PerformancePage.jsx",
+      "type": "file",
+      "name": "PerformancePage.jsx",
+      "filePath": "frontend/src/pages/PerformancePage.jsx",
+      "summary": "性能监控页面，展示系统信息、运行基准测试（benchmark）、通过 recharts 可视化质量与耗时指标，并支持生成与下载评测报告。",
+      "tags": [
+        "component",
+        "page",
+        "monitoring",
+        "benchmark",
+        "charts"
+      ],
+      "complexity": "complex",
+      "languageNotes": "使用 recharts 渲染图表，并通过 setInterval 轮询系统信息。"
+    },
+    {
+      "id": "file:frontend/src/services/api.js",
+      "type": "file",
+      "name": "api.js",
+      "filePath": "frontend/src/services/api.js",
+      "summary": "前端 axios HTTP 客户端，封装对 FastAPI 后端所有接口（问答、知识库、性能、报告、问答记录）的调用，是前后端交互的统一入口。",
+      "tags": [
+        "service",
+        "api-client",
+        "axios",
+        "http",
+        "barrel"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "导出 14 个命名函数，每个均通过共享的 axios 实例发起请求。"
+    },
+    {
+      "id": "function:frontend/src/services/api.js:sendChat",
+      "type": "function",
+      "name": "sendChat",
+      "filePath": "frontend/src/services/api.js",
+      "lineRange": [
+        10,
+        37
+      ],
+      "summary": "构造问答请求体（含 RAG 策略配置）并通过 api.post 调用后端 /chat 接口返回问答结果。",
+      "tags": [
+        "api-handler",
+        "chat",
+        "http-post"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:frontend/src/services/api.js:uploadDocument",
+      "type": "function",
+      "name": "uploadDocument",
+      "filePath": "frontend/src/services/api.js",
+      "lineRange": [
+        41,
+        47
+      ],
+      "summary": "以 FormData 形式上传文档及其类型到后端知识库上传接口。",
+      "tags": [
+        "api-handler",
+        "upload",
+        "http-post"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:frontend/src/services/api.js:runBenchmark",
+      "type": "function",
+      "name": "runBenchmark",
+      "filePath": "frontend/src/services/api.js",
+      "lineRange": [
+        76,
+        81
+      ],
+      "summary": "提交查询集合到后端 benchmark 接口以执行性能/质量基准测试。",
+      "tags": [
+        "api-handler",
+        "benchmark",
+        "http-post"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:frontend/src/services/api.js:createReport",
+      "type": "function",
+      "name": "createReport",
+      "filePath": "frontend/src/services/api.js",
+      "lineRange": [
+        85,
+        90
+      ],
+      "summary": "请求后端基于查询集合生成评测报告并返回报告元数据。",
+      "tags": [
+        "api-handler",
+        "report",
+        "http-post"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:backend/app/__init__.py",
+      "type": "file",
+      "name": "__init__.py",
+      "filePath": "backend/app/__init__.py",
+      "summary": "backend.app 顶层包的初始化文件，内容为空，仅用于将 app 目录标记为 Python 包。",
+      "tags": [
+        "barrel",
+        "entry-point",
+        "python-package"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:backend/app/core/__init__.py",
+      "type": "file",
+      "name": "__init__.py",
+      "filePath": "backend/app/core/__init__.py",
+      "summary": "core 子包（LLM、embeddings、向量库、检索器）的空初始化文件，将目录标记为 Python 包。",
+      "tags": [
+        "barrel",
+        "python-package",
+        "core"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:backend/app/models/__init__.py",
+      "type": "file",
+      "name": "__init__.py",
+      "filePath": "backend/app/models/__init__.py",
+      "summary": "models 子包（Pydantic schemas）的空初始化文件，将目录标记为 Python 包。",
+      "tags": [
+        "barrel",
+        "python-package",
+        "data-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:backend/app/services/__init__.py",
+      "type": "file",
+      "name": "__init__.py",
+      "filePath": "backend/app/services/__init__.py",
+      "summary": "services 子包（RAG 管线、知识库、质量评估等业务服务）的空初始化文件，将目录标记为 Python 包。",
+      "tags": [
+        "barrel",
+        "python-package",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:backend/app/utils/__init__.py",
+      "type": "file",
+      "name": "__init__.py",
+      "filePath": "backend/app/utils/__init__.py",
+      "summary": "utils 子包（法律分块器、元数据工具）的空初始化文件，将目录标记为 Python 包。",
+      "tags": [
+        "barrel",
+        "python-package",
+        "utility"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:backend/scripts/__init__.py",
+      "type": "file",
+      "name": "__init__.py",
+      "filePath": "backend/scripts/__init__.py",
+      "summary": "scripts 子包（数据爬取、预处理、评估脚本）的空初始化文件，将目录标记为 Python 包。",
+      "tags": [
+        "barrel",
+        "python-package",
+        "script"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:backend/app/services/quality_service.py",
+      "type": "file",
+      "name": "quality_service.py",
+      "filePath": "backend/app/services/quality_service.py",
+      "summary": "RAG 回答质量评估服务，提供基于 jieba 分词的 ROUGE 指标计算，以及由 LLM 打分的检索相关性与忠实度（faithfulness）评估，并支持多查询结果的聚合统计。",
+      "tags": [
+        "service",
+        "quality-evaluation",
+        "rouge",
+        "faithfulness",
+        "rag",
+        "tested"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "使用异步 LLM 调用（ainvoke）逐句打分，并通过 jieba 中文分词适配 ROUGE 计算。"
+    },
+    {
+      "id": "function:backend/app/services/quality_service.py:compute_rouge",
+      "type": "function",
+      "name": "compute_rouge",
+      "filePath": "backend/app/services/quality_service.py",
+      "lineRange": [
+        47,
+        65
+      ],
+      "summary": "对候选回答与参考答案先做 jieba 中文分词，再计算 ROUGE-1/ROUGE-2/ROUGE-L 的 F 值并返回 RougeScores。",
+      "tags": [
+        "rouge",
+        "tokenization",
+        "metrics"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:backend/app/services/quality_service.py:evaluate_retrieval_relevance",
+      "type": "function",
+      "name": "evaluate_retrieval_relevance",
+      "filePath": "backend/app/services/quality_service.py",
+      "lineRange": [
+        83,
+        114
+      ],
+      "summary": "调用 LLM 对每个检索到的来源文档逐一打分（0-1），评估其与查询的相关性，返回平均相关度与命中比例。",
+      "tags": [
+        "retrieval",
+        "llm-scoring",
+        "relevance"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:backend/app/services/quality_service.py:evaluate_faithfulness",
+      "type": "function",
+      "name": "evaluate_faithfulness",
+      "filePath": "backend/app/services/quality_service.py",
+      "lineRange": [
+        138,
+        173
+      ],
+      "summary": "将回答与拼接后的来源上下文交给 LLM，评估回答是否忠实于检索内容（忠实度打分），解析模型输出得到分数与理由。",
+      "tags": [
+        "faithfulness",
+        "llm-scoring",
+        "hallucination-check"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:backend/app/services/quality_service.py:evaluate_single_query",
+      "type": "function",
+      "name": "evaluate_single_query",
+      "filePath": "backend/app/services/quality_service.py",
+      "lineRange": [
+        178,
+        202
+      ],
+      "summary": "对单条查询组合执行 ROUGE、检索相关性与忠实度三项评估，汇总为 QualityMetrics 返回。",
+      "tags": [
+        "evaluation",
+        "orchestration",
+        "metrics"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:backend/app/services/quality_service.py:aggregate_quality",
+      "type": "function",
+      "name": "aggregate_quality",
+      "filePath": "backend/app/services/quality_service.py",
+      "lineRange": [
+        205,
+        236
+      ],
+      "summary": "对多条查询的 QualityMetrics 列表求各项指标平均值，输出 QualityAggregated 聚合结果。",
+      "tags": [
+        "aggregation",
+        "metrics",
+        "statistics"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:backend/scripts/crawl_laws.py",
+      "type": "file",
+      "name": "crawl_laws.py",
+      "filePath": "backend/scripts/crawl_laws.py",
+      "summary": "法律条文爬取脚本，通过 HTTP 接口分页抓取法律列表与详情，清洗 HTML 后将每部法律保存为本地文本文件，供后续导入知识库使用。",
+      "tags": [
+        "script",
+        "crawler",
+        "data-pipeline",
+        "data-ingestion"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:backend/scripts/crawl_laws.py:fetch_json",
+      "type": "function",
+      "name": "fetch_json",
+      "filePath": "backend/scripts/crawl_laws.py",
+      "lineRange": [
+        49,
+        65
+      ],
+      "summary": "带重试机制的 HTTP JSON 请求封装，基于 urllib 发送 GET/POST 并解析返回的 JSON 数据。",
+      "tags": [
+        "http",
+        "retry",
+        "networking"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:backend/scripts/crawl_laws.py:clean_html",
+      "type": "function",
+      "name": "clean_html",
+      "filePath": "backend/scripts/crawl_laws.py",
+      "lineRange": [
+        91,
+        108
+      ],
+      "summary": "使用正则表达式去除 HTML 标签并还原实体字符，将法律条文正文清洗为纯文本。",
+      "tags": [
+        "html-cleaning",
+        "text-processing",
+        "sanitization"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:backend/scripts/crawl_laws.py:crawl_laws",
+      "type": "function",
+      "name": "crawl_laws",
+      "filePath": "backend/scripts/crawl_laws.py",
+      "lineRange": [
+        111,
+        194
+      ],
+      "summary": "按法律类型分页抓取列表、逐条获取详情并清洗正文，去重后将每部法律写入输出目录的文本文件，是脚本的核心爬取流程。",
+      "tags": [
+        "crawler",
+        "orchestration",
+        "data-pipeline"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:backend/scripts/crawl_laws.py:main",
+      "type": "function",
+      "name": "main",
+      "filePath": "backend/scripts/crawl_laws.py",
+      "lineRange": [
+        197,
+        220
+      ],
+      "summary": "命令行入口，解析参数（法律类型、数量、延迟）后调用 crawl_laws 执行爬取任务。",
+      "tags": [
+        "entry-point",
+        "cli",
+        "argparse"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:backend/scripts/prepare_datasets.py",
+      "type": "file",
+      "name": "prepare_datasets.py",
+      "filePath": "backend/scripts/prepare_datasets.py",
+      "summary": "数据集预处理脚本，将 CAIL2018 案例、犯罪问答、犯罪知识图谱、LawRefBook 法条及 DISC-Law-SFT 等多种原始数据源转换为系统统一的语料、参考答案与评估格式。",
+      "tags": [
+        "script",
+        "data-pipeline",
+        "dataset-conversion",
+        "preprocessing"
+      ],
+      "complexity": "complex",
+      "languageNotes": "单文件汇集多个数据源转换函数，使用 zipfile/os.walk 处理压缩包与目录树，并可选调用 HuggingFace datasets 下载数据。"
+    },
+    {
+      "id": "function:backend/scripts/prepare_datasets.py:convert_cail2018",
+      "type": "function",
+      "name": "convert_cail2018",
+      "filePath": "backend/scripts/prepare_datasets.py",
+      "lineRange": [
+        31,
+        136
+      ],
+      "summary": "解压并解析 CAIL2018 数据集，将每个案件事实与罪名、法条、刑期等元数据整理为统一的 JSONL 案例语料。",
+      "tags": [
+        "dataset-conversion",
+        "cail2018",
+        "data-pipeline"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:backend/scripts/prepare_datasets.py:convert_crime_qa_to_reference",
+      "type": "function",
+      "name": "convert_crime_qa_to_reference",
+      "filePath": "backend/scripts/prepare_datasets.py",
+      "lineRange": [
+        139,
+        235
+      ],
+      "summary": "读取犯罪问答数据，按类别分层采样生成参考答案集与评估用问答集，用于质量评估的标准答案。",
+      "tags": [
+        "dataset-conversion",
+        "sampling",
+        "reference-answers"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:backend/scripts/prepare_datasets.py:convert_crime_kg",
+      "type": "function",
+      "name": "convert_crime_kg",
+      "filePath": "backend/scripts/prepare_datasets.py",
+      "lineRange": [
+        238,
+        297
+      ],
+      "summary": "将犯罪知识图谱原始 JSONL 按字段映射转换为结构化文本条目，输出供知识图谱检索使用的语料文件。",
+      "tags": [
+        "dataset-conversion",
+        "knowledge-graph",
+        "data-pipeline"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:backend/scripts/prepare_datasets.py:download_disc_law_sft",
+      "type": "function",
+      "name": "download_disc_law_sft",
+      "filePath": "backend/scripts/prepare_datasets.py",
+      "lineRange": [
+        328,
+        361
+      ],
+      "summary": "通过 HuggingFace datasets 下载 DISC-Law-SFT 数据集的若干样本并保存为本地 JSON 文件。",
+      "tags": [
+        "dataset-download",
+        "huggingface",
+        "data-pipeline"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:backend/scripts/prepare_datasets.py:main",
+      "type": "function",
+      "name": "main",
+      "filePath": "backend/scripts/prepare_datasets.py",
+      "lineRange": [
+        391,
+        417
+      ],
+      "summary": "脚本入口，依次执行各数据源转换函数并打印数据集构成摘要。",
+      "tags": [
+        "entry-point",
+        "orchestration",
+        "cli"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:backend/scripts/run_quality_eval.py",
+      "type": "file",
+      "name": "run_quality_eval.py",
+      "filePath": "backend/scripts/run_quality_eval.py",
+      "summary": "质量评估批跑脚本，逐条执行 RAG 管线生成回答，调用质量评估服务计算 ROUGE/相关性/忠实度，并聚合输出整体评估结果与 JSON 报告。",
+      "tags": [
+        "script",
+        "evaluation",
+        "rag",
+        "benchmark"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:backend/scripts/run_quality_eval.py:main",
+      "type": "function",
+      "name": "main",
+      "filePath": "backend/scripts/run_quality_eval.py",
+      "lineRange": [
+        53,
+        111
+      ],
+      "summary": "评估主流程：预热本地模型后遍历评估问题，构建 RAGPipeline 执行检索生成，调用 evaluate_single_query 打分并聚合，最终将明细与汇总结果写入 JSON 文件。",
+      "tags": [
+        "entry-point",
+        "orchestration",
+        "evaluation"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:backend/tests/test_advanced_retrieval.py",
+      "type": "file",
+      "name": "test_advanced_retrieval.py",
+      "filePath": "backend/tests/test_advanced_retrieval.py",
+      "summary": "高级检索相关单元测试，验证法律术语规范化映射与上下文标头注入（contextual header）在法律条文和案例文档上的正确行为。",
+      "tags": [
+        "test",
+        "unit-test",
+        "retrieval",
+        "advanced-rag"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:backend/tests/test_basic.py",
+      "type": "file",
+      "name": "test_basic.py",
+      "filePath": "backend/tests/test_basic.py",
+      "summary": "基础单元测试，覆盖配置加载、法律条文与案例分块器的拆分行为以及来源元数据格式化函数。",
+      "tags": [
+        "test",
+        "unit-test",
+        "chunking",
+        "config"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:backend/tests/test_kg.py",
+      "type": "file",
+      "name": "test_kg.py",
+      "filePath": "backend/tests/test_kg.py",
+      "summary": "犯罪知识图谱单元测试，验证图谱数据加载、结构正确性以及按罪名查询（kg_lookup）在存在、不存在、多罪名和空列表场景下的行为。",
+      "tags": [
+        "test",
+        "unit-test",
+        "knowledge-graph"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:backend/tests/test_pipeline.py",
+      "type": "file",
+      "name": "test_pipeline.py",
+      "filePath": "backend/tests/test_pipeline.py",
+      "summary": "RAG 管线单元测试，覆盖 PipelineConfig 默认值与序列化、策略枚举值、向后兼容参数映射以及集合解析与上下文构建逻辑。",
+      "tags": [
+        "test",
+        "unit-test",
+        "pipeline",
+        "rag"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "document:backend/requirements.txt",
+      "type": "document",
+      "name": "requirements.txt",
+      "filePath": "backend/requirements.txt",
+      "summary": "后端 Python 依赖清单，列出 FastAPI、LangChain、Chroma、jieba、rouge 等运行 RAG 系统所需的第三方库。",
+      "tags": [
+        "documentation",
+        "dependencies",
+        "configuration",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:backend/tests/test_queries.txt",
+      "type": "document",
+      "name": "test_queries.txt",
+      "filePath": "backend/tests/test_queries.txt",
+      "summary": "用于手动或集成测试的法律问答查询样例集合，提供覆盖多类法律场景的测试问题。",
+      "tags": [
+        "documentation",
+        "test-data",
+        "queries"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "config:frontend/package.json",
+      "type": "config",
+      "name": "package.json",
+      "filePath": "frontend/package.json",
+      "summary": "前端 npm 项目配置，声明 React 与 Vite 相关依赖及 dev/build/preview 脚本，定义前端构建与开发流程。",
+      "tags": [
+        "configuration",
+        "build-system",
+        "vite",
+        "react"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:frontend/index.html",
+      "type": "file",
+      "name": "index.html",
+      "filePath": "frontend/index.html",
+      "summary": "前端单页应用的 HTML 入口模板，提供 root 挂载点并通过模块脚本加载 main.jsx。",
+      "tags": [
+        "markup",
+        "entry-point",
+        "html",
+        "spa"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:frontend/src/styles/global.css",
+      "type": "file",
+      "name": "global.css",
+      "filePath": "frontend/src/styles/global.css",
+      "summary": "前端全局样式表，定义整个应用的基础排版、布局、组件样式与主题，是界面视觉表现的统一来源。",
+      "tags": [
+        "markup",
+        "css",
+        "styling",
+        "global"
+      ],
+      "complexity": "complex",
+      "languageNotes": "近 700 行的全局 CSS，集中管理全应用样式而非按组件拆分。"
+    },
+    {
+      "id": "file:frontend/vite.config.js",
+      "type": "file",
+      "name": "vite.config.js",
+      "filePath": "frontend/vite.config.js",
+      "summary": "Vite 构建工具配置，启用 React 插件并配置开发服务器及到后端 API 的代理转发。",
+      "tags": [
+        "config",
+        "vite",
+        "build-system",
+        "dev-server"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:README.md",
+      "type": "document",
+      "name": "README.md",
+      "filePath": "README.md",
+      "summary": "项目主文档，全面介绍这套基于 LangChain 与本地大模型的轻量化法律 RAG 系统的架构、法律领域优化方案、环境要求、快速开始、API 接口、前后端说明与数据源等内容。",
+      "tags": [
+        "documentation",
+        "entry-point",
+        "overview",
+        "architecture"
+      ],
+      "complexity": "complex",
+      "languageNotes": "包含 56 个章节的综合性中文文档，覆盖从安装到 API 与数据源的完整说明。"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:backend/app/core/llm.py",
+      "target": "file:backend/app/config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/services/hyde.py",
+      "target": "file:backend/app/config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/services/hyde.py",
+      "target": "file:backend/app/core/llm.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/services/hyde.py",
+      "target": "file:backend/app/services/prompts.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/services/kg_service.py",
+      "target": "file:backend/app/config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/services/kg_service.py",
+      "target": "file:backend/app/core/llm.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/services/kg_service.py",
+      "target": "file:backend/app/services/prompts.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/services/pipeline.py",
+      "target": "file:backend/app/config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/services/pipeline.py",
+      "target": "file:backend/app/core/llm.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/services/pipeline.py",
+      "target": "file:backend/app/core/retriever.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/services/pipeline.py",
+      "target": "file:backend/app/models/schemas.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/services/pipeline.py",
+      "target": "file:backend/app/services/prompts.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/services/pipeline.py",
+      "target": "file:backend/app/services/query_rewriter.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/services/pipeline.py",
+      "target": "file:backend/app/services/reranker.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/services/pipeline.py",
+      "target": "file:backend/app/utils/metadata.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/services/query_rewriter.py",
+      "target": "file:backend/app/core/llm.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/services/query_rewriter.py",
+      "target": "file:backend/app/services/prompts.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/services/reranker.py",
+      "target": "file:backend/app/core/llm.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/services/self_reflect.py",
+      "target": "file:backend/app/core/llm.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/services/self_reflect.py",
+      "target": "file:backend/app/services/prompts.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/scripts/run_integration_test.py",
+      "target": "file:backend/app/services/pipeline.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/core/llm.py",
+      "target": "function:backend/app/core/llm.py:get_llm",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/core/llm.py",
+      "target": "function:backend/app/core/llm.py:get_llm",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/services/hyde.py",
+      "target": "function:backend/app/services/hyde.py:hyde_transform",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/services/hyde.py",
+      "target": "function:backend/app/services/hyde.py:hyde_transform",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:backend/app/services/hyde.py:hyde_transform",
+      "target": "function:backend/app/core/llm.py:get_llm",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/services/kg_service.py",
+      "target": "function:backend/app/services/kg_service.py:_load_crime_kg",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/services/kg_service.py",
+      "target": "function:backend/app/services/kg_service.py:extract_crime_entities",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/services/kg_service.py",
+      "target": "function:backend/app/services/kg_service.py:kg_lookup",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/services/kg_service.py",
+      "target": "function:backend/app/services/kg_service.py:extract_crime_entities",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/services/kg_service.py",
+      "target": "function:backend/app/services/kg_service.py:kg_lookup",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:backend/app/services/kg_service.py:extract_crime_entities",
+      "target": "function:backend/app/services/kg_service.py:_load_crime_kg",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:backend/app/services/kg_service.py:kg_lookup",
+      "target": "function:backend/app/services/kg_service.py:_load_crime_kg",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:backend/app/services/kg_service.py:extract_crime_entities",
+      "target": "function:backend/app/core/llm.py:get_llm",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/services/pipeline.py",
+      "target": "class:backend/app/services/pipeline.py:QueryTransformStrategy",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/services/pipeline.py",
+      "target": "class:backend/app/services/pipeline.py:PipelineConfig",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/services/pipeline.py",
+      "target": "class:backend/app/services/pipeline.py:RAGPipeline",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/services/pipeline.py",
+      "target": "function:backend/app/services/pipeline.py:build_context",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/services/pipeline.py",
+      "target": "function:backend/app/services/pipeline.py:resolve_collections",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/services/pipeline.py",
+      "target": "class:backend/app/services/pipeline.py:QueryTransformStrategy",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/services/pipeline.py",
+      "target": "class:backend/app/services/pipeline.py:PipelineConfig",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/services/pipeline.py",
+      "target": "class:backend/app/services/pipeline.py:RAGPipeline",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/services/pipeline.py",
+      "target": "function:backend/app/services/pipeline.py:build_context",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/services/pipeline.py",
+      "target": "function:backend/app/services/pipeline.py:resolve_collections",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:backend/app/services/pipeline.py:RAGPipeline",
+      "target": "function:backend/app/services/query_rewriter.py:multi_query_rewrite",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:backend/app/services/pipeline.py:RAGPipeline",
+      "target": "function:backend/app/services/query_rewriter.py:decompose_query",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:backend/app/services/pipeline.py:RAGPipeline",
+      "target": "function:backend/app/services/hyde.py:hyde_transform",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:backend/app/services/pipeline.py:RAGPipeline",
+      "target": "function:backend/app/services/kg_service.py:extract_crime_entities",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:backend/app/services/pipeline.py:RAGPipeline",
+      "target": "function:backend/app/services/kg_service.py:kg_lookup",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:backend/app/services/pipeline.py:RAGPipeline",
+      "target": "function:backend/app/services/reranker.py:simple_rerank",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:backend/app/services/pipeline.py:RAGPipeline",
+      "target": "function:backend/app/services/reranker.py:llm_rerank",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:backend/app/services/pipeline.py:RAGPipeline",
+      "target": "function:backend/app/services/self_reflect.py:self_reflect_and_correct",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:backend/app/services/pipeline.py:RAGPipeline",
+      "target": "function:backend/app/core/llm.py:get_llm",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:backend/app/services/pipeline.py:build_context",
+      "target": "function:backend/app/utils/metadata.py:format_source_display",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/services/query_rewriter.py",
+      "target": "function:backend/app/services/query_rewriter.py:normalize_legal_terms",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/services/query_rewriter.py",
+      "target": "function:backend/app/services/query_rewriter.py:multi_query_rewrite",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/services/query_rewriter.py",
+      "target": "function:backend/app/services/query_rewriter.py:decompose_query",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/services/query_rewriter.py",
+      "target": "function:backend/app/services/query_rewriter.py:normalize_legal_terms",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/services/query_rewriter.py",
+      "target": "function:backend/app/services/query_rewriter.py:multi_query_rewrite",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/services/query_rewriter.py",
+      "target": "function:backend/app/services/query_rewriter.py:decompose_query",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:backend/app/services/query_rewriter.py:multi_query_rewrite",
+      "target": "function:backend/app/core/llm.py:get_llm",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:backend/app/services/query_rewriter.py:decompose_query",
+      "target": "function:backend/app/core/llm.py:get_llm",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/services/reranker.py",
+      "target": "function:backend/app/services/reranker.py:simple_rerank",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/services/reranker.py",
+      "target": "function:backend/app/services/reranker.py:llm_rerank",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/services/reranker.py",
+      "target": "function:backend/app/services/reranker.py:_parse_batch_scores",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/services/reranker.py",
+      "target": "function:backend/app/services/reranker.py:simple_rerank",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/services/reranker.py",
+      "target": "function:backend/app/services/reranker.py:llm_rerank",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:backend/app/services/reranker.py:llm_rerank",
+      "target": "function:backend/app/services/reranker.py:simple_rerank",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:backend/app/services/reranker.py:llm_rerank",
+      "target": "function:backend/app/services/reranker.py:_parse_batch_scores",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:backend/app/services/reranker.py:llm_rerank",
+      "target": "function:backend/app/core/llm.py:get_llm",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/services/self_reflect.py",
+      "target": "function:backend/app/services/self_reflect.py:self_reflect_and_correct",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/services/self_reflect.py",
+      "target": "function:backend/app/services/self_reflect.py:self_reflect_and_correct",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:backend/app/services/self_reflect.py:self_reflect_and_correct",
+      "target": "function:backend/app/core/llm.py:get_llm",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/utils/metadata.py",
+      "target": "function:backend/app/utils/metadata.py:format_source_display",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/utils/metadata.py",
+      "target": "function:backend/app/utils/metadata.py:format_source_display",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/scripts/run_integration_test.py",
+      "target": "function:backend/scripts/run_integration_test.py:run_one",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/scripts/run_integration_test.py",
+      "target": "function:backend/scripts/run_integration_test.py:main",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "function:backend/scripts/run_integration_test.py:run_one",
+      "target": "class:backend/app/services/pipeline.py:RAGPipeline",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:backend/scripts/run_integration_test.py:run_one",
+      "target": "class:backend/app/services/pipeline.py:PipelineConfig",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:backend/scripts/run_integration_test.py:main",
+      "target": "function:backend/scripts/run_integration_test.py:run_one",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/api/chat.py",
+      "target": "file:backend/app/models/schemas.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/api/chat.py",
+      "target": "file:backend/app/services/perf_service.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/api/chat.py",
+      "target": "file:backend/app/services/rag_service.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/api/chat.py",
+      "target": "file:backend/app/services/report_service.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/api/knowledge.py",
+      "target": "file:backend/app/models/schemas.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/api/knowledge.py",
+      "target": "file:backend/app/services/kb_service.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/api/performance.py",
+      "target": "file:backend/app/models/schemas.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/api/performance.py",
+      "target": "file:backend/app/services/perf_service.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/api/performance.py",
+      "target": "file:backend/app/services/report_service.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/main.py",
+      "target": "file:backend/app/api/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/main.py",
+      "target": "file:backend/app/api/chat.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/main.py",
+      "target": "file:backend/app/api/knowledge.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/main.py",
+      "target": "file:backend/app/api/performance.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/main.py",
+      "target": "file:backend/app/config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/services/perf_service.py",
+      "target": "file:backend/app/config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/services/perf_service.py",
+      "target": "file:backend/app/core/embeddings.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/services/perf_service.py",
+      "target": "file:backend/app/core/llm.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/services/perf_service.py",
+      "target": "file:backend/app/models/schemas.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/services/perf_service.py",
+      "target": "file:backend/app/services/rag_service.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/services/rag_service.py",
+      "target": "file:backend/app/models/schemas.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/services/rag_service.py",
+      "target": "file:backend/app/services/pipeline.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/services/report_service.py",
+      "target": "file:backend/app/config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/services/report_service.py",
+      "target": "file:backend/app/models/schemas.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/api/chat.py",
+      "target": "endpoint:backend/app/api/chat.py:POST /chat",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/api/chat.py",
+      "target": "endpoint:backend/app/api/chat.py:POST /chat/save-record",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/api/chat.py",
+      "target": "endpoint:backend/app/api/chat.py:GET /chat/records",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/api/chat.py",
+      "target": "endpoint:backend/app/api/chat.py:GET /chat/records/{record_id}",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/api/knowledge.py",
+      "target": "endpoint:backend/app/api/knowledge.py:POST /knowledge/upload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/api/knowledge.py",
+      "target": "endpoint:backend/app/api/knowledge.py:GET /knowledge/list",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/api/knowledge.py",
+      "target": "endpoint:backend/app/api/knowledge.py:DELETE /knowledge/{filename}",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/api/knowledge.py",
+      "target": "endpoint:backend/app/api/knowledge.py:POST /knowledge/rebuild",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/api/knowledge.py",
+      "target": "endpoint:backend/app/api/knowledge.py:GET /knowledge/stats",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/api/performance.py",
+      "target": "endpoint:backend/app/api/performance.py:GET /performance/system",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/api/performance.py",
+      "target": "endpoint:backend/app/api/performance.py:POST /performance/bench",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/api/performance.py",
+      "target": "endpoint:backend/app/api/performance.py:POST /performance/report",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/api/performance.py",
+      "target": "endpoint:backend/app/api/performance.py:GET /performance/reports",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/api/performance.py",
+      "target": "endpoint:backend/app/api/performance.py:GET /performance/reports/{report_id}",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/main.py",
+      "target": "function:backend/app/main.py:warmup_local_models",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/main.py",
+      "target": "function:backend/app/main.py:health_check",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/main.py",
+      "target": "function:backend/app/main.py:warmup_local_models",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/main.py",
+      "target": "function:backend/app/main.py:health_check",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/services/perf_service.py",
+      "target": "function:backend/app/services/perf_service.py:get_ollama_status",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/services/perf_service.py",
+      "target": "function:backend/app/services/perf_service.py:run_benchmark",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/services/perf_service.py",
+      "target": "function:backend/app/services/perf_service.py:get_ollama_status",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/services/perf_service.py",
+      "target": "function:backend/app/services/perf_service.py:run_benchmark",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/services/rag_service.py",
+      "target": "function:backend/app/services/rag_service.py:rag_query",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/services/rag_service.py",
+      "target": "function:backend/app/services/rag_service.py:rag_query",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/services/report_service.py",
+      "target": "function:backend/app/services/report_service.py:generate_report",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/services/report_service.py",
+      "target": "function:backend/app/services/report_service.py:list_reports",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/services/report_service.py",
+      "target": "function:backend/app/services/report_service.py:save_chat_record",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/services/report_service.py",
+      "target": "function:backend/app/services/report_service.py:list_chat_records",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/services/report_service.py",
+      "target": "function:backend/app/services/report_service.py:generate_report",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/services/report_service.py",
+      "target": "function:backend/app/services/report_service.py:list_reports",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/services/report_service.py",
+      "target": "function:backend/app/services/report_service.py:save_chat_record",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/services/report_service.py",
+      "target": "function:backend/app/services/report_service.py:list_chat_records",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/models/schemas.py",
+      "target": "class:backend/app/models/schemas.py:ChatRequest",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/models/schemas.py",
+      "target": "class:backend/app/models/schemas.py:ChatResponse",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/models/schemas.py",
+      "target": "class:backend/app/models/schemas.py:BenchmarkResultV2",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/models/schemas.py",
+      "target": "class:backend/app/models/schemas.py:ReportFull",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/models/schemas.py",
+      "target": "class:backend/app/models/schemas.py:StageMetrics",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/models/schemas.py",
+      "target": "class:backend/app/models/schemas.py:ChatRequest",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/models/schemas.py",
+      "target": "class:backend/app/models/schemas.py:ChatResponse",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/models/schemas.py",
+      "target": "class:backend/app/models/schemas.py:BenchmarkResultV2",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/models/schemas.py",
+      "target": "class:backend/app/models/schemas.py:ReportFull",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/models/schemas.py",
+      "target": "class:backend/app/models/schemas.py:StageMetrics",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "endpoint:backend/app/api/chat.py:POST /chat",
+      "type": "calls",
+      "target": "function:backend/app/services/rag_service.py:rag_query",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "endpoint:backend/app/api/chat.py:POST /chat/save-record",
+      "type": "calls",
+      "target": "function:backend/app/services/report_service.py:save_chat_record",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "endpoint:backend/app/api/chat.py:GET /chat/records",
+      "type": "calls",
+      "target": "function:backend/app/services/report_service.py:list_chat_records",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "endpoint:backend/app/api/performance.py:POST /performance/bench",
+      "type": "calls",
+      "target": "function:backend/app/services/perf_service.py:run_benchmark",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "endpoint:backend/app/api/performance.py:POST /performance/report",
+      "type": "calls",
+      "target": "function:backend/app/services/perf_service.py:run_benchmark",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "endpoint:backend/app/api/performance.py:POST /performance/report",
+      "type": "calls",
+      "target": "function:backend/app/services/report_service.py:generate_report",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "endpoint:backend/app/api/performance.py:GET /performance/reports",
+      "type": "calls",
+      "target": "function:backend/app/services/report_service.py:list_reports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:backend/app/services/perf_service.py:run_benchmark",
+      "type": "calls",
+      "target": "function:backend/app/services/rag_service.py:rag_query",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:backend/app/services/rag_service.py:rag_query",
+      "type": "depends_on",
+      "target": "file:backend/app/services/pipeline.py",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:backend/app/config.py",
+      "target": "class:backend/app/config.py:Settings",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/config.py",
+      "target": "class:backend/app/config.py:Settings",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/core/embeddings.py",
+      "target": "file:backend/app/config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/core/embeddings.py",
+      "target": "function:backend/app/core/embeddings.py:get_embeddings",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/core/embeddings.py",
+      "target": "function:backend/app/core/embeddings.py:get_embeddings",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/core/retriever.py",
+      "target": "file:backend/app/config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/core/retriever.py",
+      "target": "file:backend/app/core/vectorstore.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/core/retriever.py",
+      "target": "class:backend/app/core/retriever.py:BM25ChineseRetriever",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/core/retriever.py",
+      "target": "class:backend/app/core/retriever.py:HybridRetriever",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/core/retriever.py",
+      "target": "function:backend/app/core/retriever.py:get_hybrid_retriever",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/core/retriever.py",
+      "target": "class:backend/app/core/retriever.py:BM25ChineseRetriever",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/core/retriever.py",
+      "target": "class:backend/app/core/retriever.py:HybridRetriever",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/core/retriever.py",
+      "target": "function:backend/app/core/retriever.py:get_hybrid_retriever",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:backend/app/core/retriever.py:HybridRetriever",
+      "target": "class:backend/app/core/retriever.py:BM25ChineseRetriever",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "class:backend/app/core/retriever.py:HybridRetriever",
+      "target": "function:backend/app/core/vectorstore.py:get_vectorstore",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:backend/app/core/retriever.py:get_hybrid_retriever",
+      "target": "class:backend/app/core/retriever.py:HybridRetriever",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/core/vectorstore.py",
+      "target": "file:backend/app/config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/core/vectorstore.py",
+      "target": "file:backend/app/core/embeddings.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/core/vectorstore.py",
+      "target": "function:backend/app/core/vectorstore.py:get_vectorstore",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/core/vectorstore.py",
+      "target": "function:backend/app/core/vectorstore.py:get_vectorstore",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:backend/app/core/vectorstore.py:get_vectorstore",
+      "target": "function:backend/app/core/embeddings.py:get_embeddings",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/services/kb_service.py",
+      "target": "file:backend/app/config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/services/kb_service.py",
+      "target": "file:backend/app/core/embeddings.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/services/kb_service.py",
+      "target": "file:backend/app/core/vectorstore.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/services/kb_service.py",
+      "target": "file:backend/app/models/schemas.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/services/kb_service.py",
+      "target": "file:backend/app/utils/legal_chunker.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/services/kb_service.py",
+      "target": "function:backend/app/services/kb_service.py:_collect_files",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/services/kb_service.py",
+      "target": "function:backend/app/services/kb_service.py:get_kb_stats",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/services/kb_service.py",
+      "target": "function:backend/app/services/kb_service.py:upload_document",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/services/kb_service.py",
+      "target": "function:backend/app/services/kb_service.py:list_documents",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/services/kb_service.py",
+      "target": "function:backend/app/services/kb_service.py:rebuild_index",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/services/kb_service.py",
+      "target": "function:backend/app/services/kb_service.py:get_kb_stats",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/services/kb_service.py",
+      "target": "function:backend/app/services/kb_service.py:upload_document",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/services/kb_service.py",
+      "target": "function:backend/app/services/kb_service.py:list_documents",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/services/kb_service.py",
+      "target": "function:backend/app/services/kb_service.py:rebuild_index",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:backend/app/services/kb_service.py:upload_document",
+      "target": "function:backend/app/utils/legal_chunker.py:split_legal_document",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:backend/app/services/kb_service.py:upload_document",
+      "target": "function:backend/app/core/vectorstore.py:get_vectorstore",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:backend/app/services/kb_service.py:rebuild_index",
+      "target": "function:backend/app/utils/legal_chunker.py:split_legal_document",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:backend/app/services/kb_service.py:rebuild_index",
+      "target": "function:backend/app/core/vectorstore.py:get_vectorstore",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:backend/app/services/kb_service.py:get_kb_stats",
+      "target": "function:backend/app/core/vectorstore.py:get_vectorstore",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/utils/legal_chunker.py",
+      "target": "class:backend/app/utils/legal_chunker.py:LegalArticleSplitter",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/utils/legal_chunker.py",
+      "target": "class:backend/app/utils/legal_chunker.py:LegalCaseSplitter",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/utils/legal_chunker.py",
+      "target": "function:backend/app/utils/legal_chunker.py:extract_law_metadata",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/utils/legal_chunker.py",
+      "target": "function:backend/app/utils/legal_chunker.py:extract_case_metadata",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/utils/legal_chunker.py",
+      "target": "function:backend/app/utils/legal_chunker.py:enrich_chunk_metadata",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/utils/legal_chunker.py",
+      "target": "function:backend/app/utils/legal_chunker.py:add_contextual_header",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/utils/legal_chunker.py",
+      "target": "function:backend/app/utils/legal_chunker.py:split_legal_document",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/utils/legal_chunker.py",
+      "target": "class:backend/app/utils/legal_chunker.py:LegalArticleSplitter",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/utils/legal_chunker.py",
+      "target": "class:backend/app/utils/legal_chunker.py:LegalCaseSplitter",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/utils/legal_chunker.py",
+      "target": "function:backend/app/utils/legal_chunker.py:split_legal_document",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:backend/app/utils/legal_chunker.py:split_legal_document",
+      "target": "function:backend/app/utils/legal_chunker.py:extract_law_metadata",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:backend/app/utils/legal_chunker.py:split_legal_document",
+      "target": "function:backend/app/utils/legal_chunker.py:extract_case_metadata",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:backend/app/utils/legal_chunker.py:split_legal_document",
+      "target": "function:backend/app/utils/legal_chunker.py:enrich_chunk_metadata",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:backend/app/utils/legal_chunker.py:split_legal_document",
+      "target": "function:backend/app/utils/legal_chunker.py:add_contextual_header",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/scripts/import_data.py",
+      "target": "file:backend/app/config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/scripts/import_data.py",
+      "target": "file:backend/app/core/vectorstore.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/scripts/import_data.py",
+      "target": "file:backend/app/utils/legal_chunker.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/scripts/import_data.py",
+      "target": "function:backend/scripts/import_data.py:collect_files",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/scripts/import_data.py",
+      "target": "function:backend/scripts/import_data.py:import_laws",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/scripts/import_data.py",
+      "target": "function:backend/scripts/import_data.py:_extract_case_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/scripts/import_data.py",
+      "target": "function:backend/scripts/import_data.py:import_cases_jsonl",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/scripts/import_data.py",
+      "target": "function:backend/scripts/import_data.py:main",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "function:backend/scripts/import_data.py:import_laws",
+      "target": "function:backend/app/utils/legal_chunker.py:split_legal_document",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:backend/scripts/import_data.py:import_cases_jsonl",
+      "target": "function:backend/app/utils/legal_chunker.py:split_legal_document",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:backend/scripts/import_data.py:import_cases_jsonl",
+      "target": "function:backend/scripts/import_data.py:_extract_case_text",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:backend/scripts/import_data.py:main",
+      "target": "function:backend/app/core/vectorstore.py:get_vectorstore",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:backend/scripts/import_data.py:main",
+      "target": "function:backend/scripts/import_data.py:import_laws",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:backend/scripts/import_data.py:main",
+      "target": "function:backend/scripts/import_data.py:import_cases_jsonl",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:frontend/src/main.jsx",
+      "target": "file:frontend/src/App.jsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/main.jsx",
+      "target": "file:frontend/src/styles/global.css",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/App.jsx",
+      "target": "file:frontend/src/pages/ChatPage.jsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/App.jsx",
+      "target": "file:frontend/src/pages/KnowledgePage.jsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/App.jsx",
+      "target": "file:frontend/src/pages/PerformancePage.jsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/pages/ChatPage.jsx",
+      "target": "file:frontend/src/services/api.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/pages/KnowledgePage.jsx",
+      "target": "file:frontend/src/services/api.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/pages/PerformancePage.jsx",
+      "target": "file:frontend/src/services/api.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/services/api.js",
+      "target": "function:frontend/src/services/api.js:sendChat",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:frontend/src/services/api.js",
+      "target": "function:frontend/src/services/api.js:uploadDocument",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:frontend/src/services/api.js",
+      "target": "function:frontend/src/services/api.js:runBenchmark",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:frontend/src/services/api.js",
+      "target": "function:frontend/src/services/api.js:createReport",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:frontend/src/services/api.js",
+      "target": "function:frontend/src/services/api.js:sendChat",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:frontend/src/services/api.js",
+      "target": "function:frontend/src/services/api.js:uploadDocument",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:frontend/src/services/api.js",
+      "target": "function:frontend/src/services/api.js:runBenchmark",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:frontend/src/services/api.js",
+      "target": "function:frontend/src/services/api.js:createReport",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:frontend/src/pages/ChatPage.jsx",
+      "target": "function:frontend/src/services/api.js:sendChat",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:frontend/src/pages/KnowledgePage.jsx",
+      "target": "function:frontend/src/services/api.js:uploadDocument",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:frontend/src/pages/PerformancePage.jsx",
+      "target": "function:frontend/src/services/api.js:runBenchmark",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:frontend/src/pages/PerformancePage.jsx",
+      "target": "function:frontend/src/services/api.js:createReport",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/services/quality_service.py",
+      "target": "file:backend/app/config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/services/quality_service.py",
+      "target": "file:backend/app/core/llm.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/services/quality_service.py",
+      "target": "file:backend/app/models/schemas.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/scripts/run_quality_eval.py",
+      "target": "file:backend/app/models/schemas.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/scripts/run_quality_eval.py",
+      "target": "file:backend/app/services/pipeline.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/scripts/run_quality_eval.py",
+      "target": "file:backend/app/services/quality_service.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/services/quality_service.py",
+      "target": "function:backend/app/services/quality_service.py:compute_rouge",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/services/quality_service.py",
+      "target": "function:backend/app/services/quality_service.py:evaluate_retrieval_relevance",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/services/quality_service.py",
+      "target": "function:backend/app/services/quality_service.py:evaluate_faithfulness",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/services/quality_service.py",
+      "target": "function:backend/app/services/quality_service.py:evaluate_single_query",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/services/quality_service.py",
+      "target": "function:backend/app/services/quality_service.py:aggregate_quality",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/services/quality_service.py",
+      "target": "function:backend/app/services/quality_service.py:compute_rouge",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/services/quality_service.py",
+      "target": "function:backend/app/services/quality_service.py:evaluate_retrieval_relevance",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/services/quality_service.py",
+      "target": "function:backend/app/services/quality_service.py:evaluate_faithfulness",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/services/quality_service.py",
+      "target": "function:backend/app/services/quality_service.py:evaluate_single_query",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/services/quality_service.py",
+      "target": "function:backend/app/services/quality_service.py:aggregate_quality",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:backend/app/services/quality_service.py:evaluate_retrieval_relevance",
+      "target": "function:backend/app/core/llm.py:get_llm",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:backend/app/services/quality_service.py:evaluate_faithfulness",
+      "target": "function:backend/app/core/llm.py:get_llm",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/scripts/crawl_laws.py",
+      "target": "function:backend/scripts/crawl_laws.py:fetch_json",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/scripts/crawl_laws.py",
+      "target": "function:backend/scripts/crawl_laws.py:clean_html",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/scripts/crawl_laws.py",
+      "target": "function:backend/scripts/crawl_laws.py:crawl_laws",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/scripts/crawl_laws.py",
+      "target": "function:backend/scripts/crawl_laws.py:main",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/scripts/prepare_datasets.py",
+      "target": "function:backend/scripts/prepare_datasets.py:convert_cail2018",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/scripts/prepare_datasets.py",
+      "target": "function:backend/scripts/prepare_datasets.py:convert_crime_qa_to_reference",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/scripts/prepare_datasets.py",
+      "target": "function:backend/scripts/prepare_datasets.py:convert_crime_kg",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/scripts/prepare_datasets.py",
+      "target": "function:backend/scripts/prepare_datasets.py:download_disc_law_sft",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/scripts/prepare_datasets.py",
+      "target": "function:backend/scripts/prepare_datasets.py:main",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/scripts/run_quality_eval.py",
+      "target": "function:backend/scripts/run_quality_eval.py:main",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "function:backend/scripts/run_quality_eval.py:main",
+      "target": "function:backend/app/services/quality_service.py:evaluate_single_query",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:backend/scripts/run_quality_eval.py:main",
+      "target": "function:backend/app/services/quality_service.py:aggregate_quality",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/services/quality_service.py",
+      "target": "file:backend/tests/test_pipeline.py",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:backend/app/services/pipeline.py",
+      "target": "file:backend/tests/test_pipeline.py",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:backend/app/services/kg_service.py",
+      "target": "file:backend/tests/test_kg.py",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:backend/app/services/query_rewriter.py",
+      "target": "file:backend/tests/test_advanced_retrieval.py",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:backend/app/utils/legal_chunker.py",
+      "target": "file:backend/tests/test_advanced_retrieval.py",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:backend/app/utils/legal_chunker.py",
+      "target": "file:backend/tests/test_basic.py",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:backend/app/utils/metadata.py",
+      "target": "file:backend/tests/test_basic.py",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:backend/app/config.py",
+      "target": "file:backend/tests/test_basic.py",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "config:frontend/package.json",
+      "target": "file:frontend/vite.config.js",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "config:frontend/package.json",
+      "target": "file:frontend/src/App.jsx",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:frontend/vite.config.js",
+      "target": "file:frontend/index.html",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "document:backend/requirements.txt",
+      "target": "file:backend/app/main.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:README.md",
+      "target": "file:backend/app/main.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:README.md",
+      "target": "file:backend/app/services/pipeline.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:README.md",
+      "target": "file:frontend/src/App.jsx",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:README.md",
+      "target": "file:frontend/src/services/api.js",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:README.md",
+      "target": "file:backend/app/services/quality_service.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:backend/tests/test_queries.txt",
+      "target": "file:backend/scripts/run_quality_eval.py",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "endpoint:backend/app/api/chat.py:POST /chat",
+      "target": "function:backend/app/services/perf_service.py:get_system_info",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    }
+  ],
+  "layers": [
+    {
+      "id": "layer:config",
+      "name": "配置与应用入口层",
+      "description": "FastAPI 应用工厂 main.py、pydantic-settings 全局配置 config.py 及 Python 包初始化文件，集中管理 Ollama 端点、模型、检索权重与 CORS/路由装配。",
+      "nodeIds": [
+        "file:backend/app/main.py",
+        "file:backend/app/config.py",
+        "file:backend/app/__init__.py",
+        "function:backend/app/main.py:warmup_local_models",
+        "function:backend/app/main.py:health_check",
+        "class:backend/app/config.py:Settings"
+      ]
+    },
+    {
+      "id": "layer:api",
+      "name": "API 层",
+      "description": "基于 FastAPI APIRouter 的 chat/knowledge/performance 路由模块及其全部 HTTP 端点，负责请求校验并将业务委托给服务层。",
+      "nodeIds": [
+        "file:backend/app/api/__init__.py",
+        "file:backend/app/api/chat.py",
+        "file:backend/app/api/knowledge.py",
+        "file:backend/app/api/performance.py",
+        "endpoint:backend/app/api/chat.py:POST /chat",
+        "endpoint:backend/app/api/chat.py:POST /chat/save-record",
+        "endpoint:backend/app/api/chat.py:GET /chat/records",
+        "endpoint:backend/app/api/chat.py:GET /chat/records/{record_id}",
+        "endpoint:backend/app/api/knowledge.py:POST /knowledge/upload",
+        "endpoint:backend/app/api/knowledge.py:GET /knowledge/list",
+        "endpoint:backend/app/api/knowledge.py:DELETE /knowledge/{filename}",
+        "endpoint:backend/app/api/knowledge.py:POST /knowledge/rebuild",
+        "endpoint:backend/app/api/knowledge.py:GET /knowledge/stats",
+        "endpoint:backend/app/api/performance.py:GET /performance/system",
+        "endpoint:backend/app/api/performance.py:POST /performance/bench",
+        "endpoint:backend/app/api/performance.py:POST /performance/report",
+        "endpoint:backend/app/api/performance.py:GET /performance/reports",
+        "endpoint:backend/app/api/performance.py:GET /performance/reports/{report_id}"
+      ]
+    },
+    {
+      "id": "layer:data-model",
+      "name": "数据模型层",
+      "description": "集中定义统一 API 响应、问答请求/响应、基准与质量评估等 Pydantic schema，被 API 层与各服务广泛复用的类型契约。",
+      "nodeIds": [
+        "file:backend/app/models/schemas.py",
+        "file:backend/app/models/__init__.py",
+        "class:backend/app/models/schemas.py:ChatRequest",
+        "class:backend/app/models/schemas.py:ChatResponse",
+        "class:backend/app/models/schemas.py:BenchmarkResultV2",
+        "class:backend/app/models/schemas.py:ReportFull",
+        "class:backend/app/models/schemas.py:StageMetrics"
+      ]
+    },
+    {
+      "id": "layer:service",
+      "name": "服务层",
+      "description": "RAG 业务核心：可插拔 pipeline 编排、查询改写/HyDE/分解、rerank、自反思、知识图谱、知识库管理、质量评估、性能监控与报告持久化等服务。",
+      "nodeIds": [
+        "file:backend/app/services/__init__.py",
+        "file:backend/app/services/pipeline.py",
+        "file:backend/app/services/rag_service.py",
+        "file:backend/app/services/hyde.py",
+        "file:backend/app/services/query_rewriter.py",
+        "file:backend/app/services/reranker.py",
+        "file:backend/app/services/self_reflect.py",
+        "file:backend/app/services/kg_service.py",
+        "file:backend/app/services/kb_service.py",
+        "file:backend/app/services/quality_service.py",
+        "file:backend/app/services/perf_service.py",
+        "file:backend/app/services/report_service.py",
+        "file:backend/app/services/prompts.py",
+        "class:backend/app/services/pipeline.py:QueryTransformStrategy",
+        "class:backend/app/services/pipeline.py:PipelineConfig",
+        "class:backend/app/services/pipeline.py:RAGPipeline",
+        "function:backend/app/services/pipeline.py:build_context",
+        "function:backend/app/services/pipeline.py:resolve_collections",
+        "function:backend/app/services/hyde.py:hyde_transform",
+        "function:backend/app/services/kg_service.py:_load_crime_kg",
+        "function:backend/app/services/kg_service.py:extract_crime_entities",
+        "function:backend/app/services/kg_service.py:kg_lookup",
+        "function:backend/app/services/query_rewriter.py:normalize_legal_terms",
+        "function:backend/app/services/query_rewriter.py:multi_query_rewrite",
+        "function:backend/app/services/query_rewriter.py:decompose_query",
+        "function:backend/app/services/reranker.py:simple_rerank",
+        "function:backend/app/services/reranker.py:llm_rerank",
+        "function:backend/app/services/reranker.py:_parse_batch_scores",
+        "function:backend/app/services/self_reflect.py:self_reflect_and_correct",
+        "function:backend/app/services/perf_service.py:get_system_info",
+        "function:backend/app/services/perf_service.py:get_ollama_status",
+        "function:backend/app/services/perf_service.py:run_benchmark",
+        "function:backend/app/services/rag_service.py:rag_query",
+        "function:backend/app/services/report_service.py:generate_report",
+        "function:backend/app/services/report_service.py:list_reports",
+        "function:backend/app/services/report_service.py:save_chat_record",
+        "function:backend/app/services/report_service.py:list_chat_records",
+        "function:backend/app/services/kb_service.py:_collect_files",
+        "function:backend/app/services/kb_service.py:get_kb_stats",
+        "function:backend/app/services/kb_service.py:upload_document",
+        "function:backend/app/services/kb_service.py:list_documents",
+        "function:backend/app/services/kb_service.py:rebuild_index",
+        "function:backend/app/services/quality_service.py:compute_rouge",
+        "function:backend/app/services/quality_service.py:evaluate_retrieval_relevance",
+        "function:backend/app/services/quality_service.py:evaluate_faithfulness",
+        "function:backend/app/services/quality_service.py:evaluate_single_query",
+        "function:backend/app/services/quality_service.py:aggregate_quality"
+      ]
+    },
+    {
+      "id": "layer:retrieval-core",
+      "name": "检索与存储核心层",
+      "description": "RAG 底层能力：Qwen3/Ollama LLM 工厂、BGE-M3 embedding、ChromaDB 向量库封装及 BM25+向量混合检索（RRF），是服务层依赖最重的基础设施。",
+      "nodeIds": [
+        "file:backend/app/core/__init__.py",
+        "file:backend/app/core/llm.py",
+        "file:backend/app/core/embeddings.py",
+        "file:backend/app/core/vectorstore.py",
+        "file:backend/app/core/retriever.py",
+        "function:backend/app/core/llm.py:get_llm",
+        "function:backend/app/core/embeddings.py:get_embeddings",
+        "function:backend/app/core/vectorstore.py:get_vectorstore",
+        "class:backend/app/core/retriever.py:BM25ChineseRetriever",
+        "class:backend/app/core/retriever.py:HybridRetriever",
+        "function:backend/app/core/retriever.py:get_hybrid_retriever"
+      ]
+    },
+    {
+      "id": "layer:utility",
+      "name": "工具层",
+      "description": "跨层复用的法律领域工具：法条/案例分块器（contextual header 注入）与来源元数据展示格式化，是检索质量优化的关键支撑。",
+      "nodeIds": [
+        "file:backend/app/utils/__init__.py",
+        "file:backend/app/utils/legal_chunker.py",
+        "file:backend/app/utils/metadata.py",
+        "class:backend/app/utils/legal_chunker.py:LegalArticleSplitter",
+        "class:backend/app/utils/legal_chunker.py:LegalCaseSplitter",
+        "function:backend/app/utils/legal_chunker.py:extract_law_metadata",
+        "function:backend/app/utils/legal_chunker.py:extract_case_metadata",
+        "function:backend/app/utils/legal_chunker.py:enrich_chunk_metadata",
+        "function:backend/app/utils/legal_chunker.py:add_contextual_header",
+        "function:backend/app/utils/legal_chunker.py:split_legal_document",
+        "function:backend/app/utils/metadata.py:format_source_display"
+      ]
+    },
+    {
+      "id": "layer:data-scripts",
+      "name": "数据脚本层",
+      "description": "离线数据流水线：法律条文爬取、多源数据集预处理、向量库导入及集成测试/质量评估批跑脚本，独立于在线服务运行。",
+      "nodeIds": [
+        "file:backend/scripts/__init__.py",
+        "file:backend/scripts/crawl_laws.py",
+        "file:backend/scripts/prepare_datasets.py",
+        "file:backend/scripts/import_data.py",
+        "file:backend/scripts/run_integration_test.py",
+        "file:backend/scripts/run_quality_eval.py",
+        "function:backend/scripts/run_integration_test.py:run_one",
+        "function:backend/scripts/run_integration_test.py:main",
+        "function:backend/scripts/import_data.py:collect_files",
+        "function:backend/scripts/import_data.py:import_laws",
+        "function:backend/scripts/import_data.py:_extract_case_text",
+        "function:backend/scripts/import_data.py:import_cases_jsonl",
+        "function:backend/scripts/import_data.py:main",
+        "function:backend/scripts/crawl_laws.py:fetch_json",
+        "function:backend/scripts/crawl_laws.py:clean_html",
+        "function:backend/scripts/crawl_laws.py:crawl_laws",
+        "function:backend/scripts/crawl_laws.py:main",
+        "function:backend/scripts/prepare_datasets.py:convert_cail2018",
+        "function:backend/scripts/prepare_datasets.py:convert_crime_qa_to_reference",
+        "function:backend/scripts/prepare_datasets.py:convert_crime_kg",
+        "function:backend/scripts/prepare_datasets.py:download_disc_law_sft",
+        "function:backend/scripts/prepare_datasets.py:main",
+        "function:backend/scripts/run_quality_eval.py:main"
+      ]
+    },
+    {
+      "id": "layer:test",
+      "name": "测试层",
+      "description": "pytest 单元测试，覆盖配置加载、法律分块器、知识图谱查询与 RAG 管线配置/兼容性，并附带测试查询样例集。",
+      "nodeIds": [
+        "file:backend/tests/test_advanced_retrieval.py",
+        "file:backend/tests/test_basic.py",
+        "file:backend/tests/test_kg.py",
+        "file:backend/tests/test_pipeline.py",
+        "document:backend/tests/test_queries.txt"
+      ]
+    },
+    {
+      "id": "layer:frontend-ui",
+      "name": "前端 UI 与服务层",
+      "description": "React/Vite 前端：应用引导、顶部导航根组件、问答/知识库/性能监控三大页面、全局样式、HTML 模板与构建配置，以及封装后端全部接口调用的 axios 客户端。",
+      "nodeIds": [
+        "file:frontend/index.html",
+        "file:frontend/vite.config.js",
+        "config:frontend/package.json",
+        "file:frontend/src/main.jsx",
+        "file:frontend/src/App.jsx",
+        "file:frontend/src/pages/ChatPage.jsx",
+        "file:frontend/src/pages/KnowledgePage.jsx",
+        "file:frontend/src/pages/PerformancePage.jsx",
+        "file:frontend/src/styles/global.css",
+        "file:frontend/src/services/api.js",
+        "function:frontend/src/services/api.js:sendChat",
+        "function:frontend/src/services/api.js:uploadDocument",
+        "function:frontend/src/services/api.js:runBenchmark",
+        "function:frontend/src/services/api.js:createReport"
+      ]
+    },
+    {
+      "id": "layer:documentation",
+      "name": "文档层",
+      "description": "项目说明与依赖声明：综合性中文 README 与后端 Python 依赖清单 requirements.txt。",
+      "nodeIds": [
+        "document:README.md",
+        "document:backend/requirements.txt"
+      ]
+    }
+  ],
+  "tour": [
+    {
+      "order": 1,
+      "title": "项目概览：法律 RAG 系统",
+      "description": "从 README 开始了解项目全貌。这是一套基于 LangChain 与本地大模型（Qwen3:8B + BGE-M3 + ChromaDB）的轻量化中国法律领域 RAG 系统，采用前后端分离架构。README 系统阐述了可插拔 RAG 管线的 4 个阶段、6 项法律领域优化、API 路由与前端三页面，是理解后续所有代码的总纲。配合 requirements.txt 可一眼看清后端依赖的技术栈（FastAPI、LangChain、Chroma、jieba、rouge）。",
+      "nodeIds": [
+        "document:README.md",
+        "document:backend/requirements.txt"
+      ]
+    },
+    {
+      "order": 2,
+      "title": "后端入口与全局配置",
+      "description": "main.py 是 FastAPI 应用入口：装配 CORS 中间件、挂载 chat/knowledge/performance 三组路由，并在启动时预热本地 LLM 与 embedding 模型。它依赖 config.py——基于 pydantic-settings 的全局配置中心，集中定义 Ollama 端点、模型名、ChromaDB 持久化目录以及 BM25/向量检索权重等关键参数。config.py 的 fan-in 高达 13，是整个后端被依赖最多的文件，先理解它能为后续每一层打下基础。",
+      "nodeIds": [
+        "file:backend/app/main.py",
+        "file:backend/app/config.py"
+      ],
+      "languageLesson": "pydantic-settings 的 BaseSettings 会自动从环境变量与 .env 文件读取配置并做类型校验，实现了配置与代码解耦——这是 Python 后端集中管理配置的常见范式。"
+    },
+    {
+      "order": 3,
+      "title": "数据模型：统一类型契约",
+      "description": "schemas.py 用 Pydantic 集中定义了 18 个数据模型，涵盖统一 API 响应、问答请求/响应（ChatRequest/ChatResponse）、性能基准、质量评估与报告等。它的 fan-in 为 10，被 API 层与各服务广泛复用，是连接前后端、各模块间的类型契约。先掌握这些 schema，后面阅读 API 与服务代码时就能清楚数据如何流动。",
+      "nodeIds": [
+        "file:backend/app/models/schemas.py"
+      ],
+      "languageLesson": "Pydantic 模型通过类型注解声明字段并在运行时自动校验，FastAPI 直接用它做请求体解析与响应序列化，同时自动生成 OpenAPI 文档。"
+    },
+    {
+      "order": 4,
+      "title": "检索与存储核心（上）：LLM 与向量化",
+      "description": "进入 RAG 的底层基础设施。llm.py 封装 Ollama 本地大模型（ChatOllama）工厂，按 model/temperature 缓存实例；embeddings.py 封装 BGE-M3 向量化能力；vectorstore.py 按 collection 缓存地返回 ChromaDB 实例。这三者是服务层依赖最重的基石——llm.py 的 fan-in 高达 8。建立在第 2 步的配置之上，它们把抽象的『本地模型 + 向量库』落地为可调用的工厂函数。",
+      "nodeIds": [
+        "file:backend/app/core/llm.py",
+        "file:backend/app/core/embeddings.py",
+        "file:backend/app/core/vectorstore.py"
+      ]
+    },
+    {
+      "order": 5,
+      "title": "检索与存储核心（下）：BM25 + 向量混合检索",
+      "description": "retriever.py 是检索能力的核心：基于 jieba 中文分词的 BM25 检索器，与融合 BM25 + 向量召回的 HybridRetriever，通过 RRF（Reciprocal Rank Fusion）对两路结果重新排序，并支持 split-query/HyDE 的多子查询检索。这对应 README 中 Stage2 的混合检索，是决定召回质量的关键一环。",
+      "nodeIds": [
+        "file:backend/app/core/retriever.py"
+      ],
+      "languageLesson": "RRF（倒数排名融合）按 1/(k+rank) 累加每个文档在不同召回列表中的排名得分，无需归一化分数即可融合 BM25 与向量两种异质检索结果，是混合检索的经典做法。"
+    },
+    {
+      "order": 6,
+      "title": "法律领域优化：结构化分块与上下文标头",
+      "description": "legal_chunker.py 是项目的关键优化点之一。LegalArticleSplitter/LegalCaseSplitter 按法条/案例的结构切分文本，抽取元数据，并通过 add_contextual_header() 为每个分块注入上下文标题，显著提升检索命中质量（README 优化①②）。metadata.py 则负责把来源元数据格式化为人类可读的引用，用于答案的出处展示。这一步承接第 5 步的检索，解释了『被检索的内容是如何被精心切分和标注的』。",
+      "nodeIds": [
+        "file:backend/app/utils/legal_chunker.py",
+        "file:backend/app/utils/metadata.py"
+      ]
+    },
+    {
+      "order": 7,
+      "title": "可插拔 RAG 管线（核心）",
+      "description": "pipeline.py 是整个系统的心脏，也是 fan-out 最高（9）的编排中枢。它通过策略枚举与 PipelineConfig 串起完整链路：查询变换（Stage1）→ 混合检索 + 知识图谱增强（Stage2/2.5）→ rerank（Stage3）→ 生成 + 自反思（Stage4），并产出分阶段耗时指标。rag_service.py 是它对外的门面（facade），把请求参数组装成 PipelineConfig 并驱动执行。理解这两个文件，就理解了 README 描述的 4 阶段可插拔管线如何运转。",
+      "nodeIds": [
+        "file:backend/app/services/pipeline.py",
+        "file:backend/app/services/rag_service.py"
+      ],
+      "languageLesson": "通过『策略枚举 + 配置对象（PipelineConfig）』把每个阶段的算法做成可替换的插件，这是策略模式在 RAG 编排中的应用——前端只需传不同配置即可切换查询变换/重排/生成策略，无需改动管线主干。"
+    },
+    {
+      "order": 8,
+      "title": "RAG 优化服务：查询变换与 HyDE",
+      "description": "管线 Stage1 的查询变换由这两个服务支撑。query_rewriter.py 提供法律术语归一化、多查询改写与复杂问题分解（README 优化④），扩大检索覆盖面；hyde.py 实现 HyDE——让 LLM 先生成一份假想的法律答案，再用它去做向量检索以提升召回（README 优化③）。两者都复用 prompts.py 中集中管理的提示词模板。",
+      "nodeIds": [
+        "file:backend/app/services/query_rewriter.py",
+        "file:backend/app/services/hyde.py",
+        "file:backend/app/services/prompts.py"
+      ]
+    },
+    {
+      "order": 9,
+      "title": "RAG 优化服务：知识图谱、重排与自反思",
+      "description": "管线后续阶段的三项增强。kg_service.py 解析本地罪名知识图谱、从问题抽取罪名实体，把构成要件/量刑/法条等组装为检索文档并行补充召回（Stage2.5，README 优化⑤）；reranker.py 提供基于 jieba 词重叠的轻量 simple_rerank 与 LLM 批量打分的 llm_rerank（Stage3）；self_reflect.py 让 LLM 对初版答案批判性反思并迭代修正（Stage4，README 优化⑥）。这三者共同把检索结果打磨成更可靠的法律回答。",
+      "nodeIds": [
+        "file:backend/app/services/kg_service.py",
+        "file:backend/app/services/reranker.py",
+        "file:backend/app/services/self_reflect.py"
+      ]
+    },
+    {
+      "order": 10,
+      "title": "知识库、质量评估与性能监控服务",
+      "description": "支撑系统运维与评测的三个服务。kb_service.py 负责文档上传、列表、删除、统计以及对法律/案例 collection 的全量重建（串联第 6 步的 chunker 与 ChromaDB 写入）；quality_service.py 提供 ROUGE 指标与 LLM 打分的相关性、忠实度（faithfulness）评估；perf_service.py 采集 CPU/内存、查询 Ollama 状态并对一组查询跑 RAG 基准测试；report_service.py 则把报告与问答记录持久化为 JSON。它们为后续的 API 与前端监控页面提供数据。",
+      "nodeIds": [
+        "file:backend/app/services/kb_service.py",
+        "file:backend/app/services/quality_service.py",
+        "file:backend/app/services/perf_service.py",
+        "file:backend/app/services/report_service.py"
+      ]
+    },
+    {
+      "order": 11,
+      "title": "API 层：HTTP 路由",
+      "description": "三组 FastAPI 路由把上面的服务暴露为 HTTP 接口。chat.py 提供 RAG 问答（POST /chat）及问答记录的保存/列出/下载；knowledge.py 提供知识库的上传/列表/删除/索引重建/统计；performance.py 提供系统资源查询、基准测试与报告生成/下载。它们只做请求校验，业务一律委托给第 7-10 步的服务层——这是清晰的分层职责。",
+      "nodeIds": [
+        "file:backend/app/api/chat.py",
+        "file:backend/app/api/knowledge.py",
+        "file:backend/app/api/performance.py",
+        "endpoint:backend/app/api/chat.py:POST /chat"
+      ]
+    },
+    {
+      "order": 12,
+      "title": "前端入口与 API 客户端",
+      "description": "切换到前端。main.jsx 用 ReactDOM 把根组件 App 挂载到 DOM 并引入全局样式；App.jsx 维护当前页面 state，在智能问答、知识库管理、性能监控三页之间做顶部导航切换。api.js 是封装后端全部接口的 axios 客户端（fan-in 4），是前后端交互的统一入口，正好对接第 11 步的 API 路由。",
+      "nodeIds": [
+        "file:frontend/src/main.jsx",
+        "file:frontend/src/App.jsx",
+        "file:frontend/src/services/api.js"
+      ],
+      "languageLesson": "React 应用通常在 main.jsx 处用 ReactDOM.createRoot().render() 挂载根组件；这里用根组件的 useState 保存当前页面来做简易路由切换，是无需引入 react-router 的轻量做法。"
+    },
+    {
+      "order": 13,
+      "title": "前端三大功能页面",
+      "description": "三个页面对应系统的三类核心交互。ChatPage 提供可插拔的 RAG 策略配置（查询改写、重排、生成策略、知识图谱开关）、消息流、实时监控与问答记录保存——它把第 7-9 步的管线策略直接交到用户手中；KnowledgePage 管理文档上传、列表删除与索引重建；PerformancePage 运行基准测试并用 recharts 可视化质量与耗时指标、生成评测报告。至此，从 README 到底层检索、再到管线、API 与前端的完整故事闭环。",
+      "nodeIds": [
+        "file:frontend/src/pages/ChatPage.jsx",
+        "file:frontend/src/pages/KnowledgePage.jsx",
+        "file:frontend/src/pages/PerformancePage.jsx"
+      ]
+    }
+  ]
+}
